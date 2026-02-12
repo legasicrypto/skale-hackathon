@@ -98,6 +98,10 @@ export default function DashboardPage() {
   const [repayAmount, setRepayAmount] = useState('');
   const [withdrawAmount, setWithdrawAmount] = useState('');
   const [lpAmount, setLpAmount] = useState('');
+  const [agentConfig, setAgentConfig] = useState({
+    enabled: false,
+    dailyLimit: 0,
+  });
 
   const showToast = (message: string, type: 'success' | 'error' = 'success') => setToast({ message, type });
   const toUSDC = (v: string) => parseUnits(v || '0', 6);
@@ -138,7 +142,7 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-[#001520] text-white gradient-bg">
       <Nav onConnect={() => disconnect()} connected address={address} />
 
-      <div className="max-w-6xl mx-auto px-6 py-8">
+      <div className="max-w-6xl mx-auto px-6 pt-20 pb-8">
         {/* Protocol Stats */}
         <div className="grid grid-cols-4 gap-4 mb-6 p-4 bg-[#051525]/50 border border-[#0a2535] rounded-xl">
           <div className="text-center">
@@ -361,12 +365,32 @@ export default function DashboardPage() {
                 <div className="mt-6 p-6 bg-[#051525]/80 border border-[#0a2535] rounded-2xl backdrop-blur-sm">
                   <div className="flex items-center justify-between mb-5">
                     <h3 className="text-base font-semibold text-white">Agent Configuration</h3>
-                    <span className="px-3 py-1 rounded-full text-xs font-medium bg-[#3a4a58]/20 text-[#6a7a88] border border-[#3a4a58]/20">Disabled</span>
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                      agentConfig.enabled ? 'bg-[#4ade80]/10 text-[#4ade80] border border-[#4ade80]/20' : 'bg-[#3a4a58]/20 text-[#6a7a88] border border-[#3a4a58]/20'
+                    }`}>
+                      {agentConfig.enabled ? 'Active' : 'Disabled'}
+                    </span>
                   </div>
                   <div className="grid grid-cols-3 gap-3">
-                    <AgentButton title="Standard" description="$1,000/day" />
-                    <AgentButton title="Pro" description="$5,000/day" highlighted />
-                    <AgentButton title="Disable" description="Manual only" active />
+                    <AgentButton
+                      title="Standard"
+                      description="$1,000/day"
+                      active={agentConfig.enabled && agentConfig.dailyLimit === 1000}
+                      onClick={() => setAgentConfig({ enabled: true, dailyLimit: 1000 })}
+                    />
+                    <AgentButton
+                      title="Pro"
+                      description="$5,000/day"
+                      highlighted
+                      active={agentConfig.enabled && agentConfig.dailyLimit === 5000}
+                      onClick={() => setAgentConfig({ enabled: true, dailyLimit: 5000 })}
+                    />
+                    <AgentButton
+                      title="Disable"
+                      description="Manual only"
+                      active={!agentConfig.enabled}
+                      onClick={() => setAgentConfig({ enabled: false, dailyLimit: 0 })}
+                    />
                   </div>
                 </div>
               </div>
@@ -447,9 +471,9 @@ function Nav({ connected, onConnect, address }: { connected: boolean; onConnect:
         <div className="flex items-center gap-3">
           <a href="/faucet" className="text-sm text-[#8a9aa8] hover:text-white">Faucet</a>
           {!connected ? (
-            <button className="h-9 px-4 bg-white text-black rounded-lg" onClick={onConnect}>Connect Wallet</button>
+            <button className="h-9 px-4 bg-[#FF4E00] hover:bg-[#E64500] text-white rounded-xl font-semibold" onClick={onConnect}>Connect Wallet</button>
           ) : (
-            <button className="h-9 px-4 bg-[#FF4E00] text-white rounded-lg">{address?.slice(0, 6)}…{address?.slice(-4)}</button>
+            <button className="h-9 px-4 bg-[#FF4E00] hover:bg-[#E64500] text-white rounded-xl font-semibold">{address?.slice(0, 6)}…{address?.slice(-4)}</button>
           )}
         </div>
       </div>
@@ -467,9 +491,9 @@ function MetricCard({ label, value, subtitle, color }: { label: string; value: s
   );
 }
 
-function AgentButton({ title, description, active, highlighted }: { title: string; description: string; active?: boolean; highlighted?: boolean }) {
+function AgentButton({ title, description, active, highlighted, onClick }: { title: string; description: string; active?: boolean; highlighted?: boolean; onClick?: () => void }) {
   return (
-    <button className={`p-4 rounded-xl text-sm font-medium border transition-all ${
+    <button onClick={onClick} className={`p-4 rounded-xl text-sm font-medium border transition-all ${
       active ? 'bg-[#FF4E00]/20 text-[#FF4E00] border-[#FF4E00]' :
       highlighted ? 'bg-[#001520] border-[#0a2535] hover:border-[#FF4E00]/40' : 'bg-[#001520] border-[#0a2535] hover:border-[#1a3545]'
     }`}>
