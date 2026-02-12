@@ -280,11 +280,7 @@ function Dashboard() {
                           <input type="number" placeholder="0.00" value={depositAmount} onChange={(e) => setDepositAmount(e.target.value)} className="w-full h-14 bg-[#001520] border border-[#0a2535] rounded-xl px-4 pr-20 text-white placeholder-[#3a4a58] focus:outline-none focus:border-[#FF4E00] transition-all" />
                           <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6a7a88] text-sm font-medium">{depositAsset}</span>
                         </div>
-                        <button onClick={() => safeTx(() => writeContractAsync({ address: collateralToken, abi: erc20Abi, functionName: "approve", args: [lending, toUSDC(depositAmount)] }), "Approve")}
-                          disabled={!depositAmount}
-                          className="h-14 px-6 bg-[#0a2535] hover:bg-[#1a3545] text-[#FF4E00] font-medium rounded-xl transition-all">
-                          Approve
-                        </button>
+                        {/* Approve handled in action tx on Supply */}
                         <button onClick={() => safeTx(() => writeContractAsync({ address: lending, abi: lendingAbi, functionName: "deposit", args: [collateralToken, toUSDC(depositAmount)] }), "Supply")}
                           disabled={!depositAmount}
                           className="h-14 px-8 bg-[#FF4E00] hover:bg-[#E64500] text-white font-semibold rounded-xl transition-all hover:scale-105 disabled:bg-[#0a2535] disabled:text-[#3a4a58] disabled:hover:scale-100">
@@ -422,8 +418,15 @@ function Dashboard() {
                 </div>
 
                 <div className="p-5 bg-[#051525]/80 border border-[#0a2535] rounded-2xl backdrop-blur-sm">
-                  <h3 className="text-sm font-medium text-[#8a9aa8] mb-3">GAD Protection</h3>
-                  <p className="text-xs text-[#6a7a88]">No sudden liquidations. Your position is unwound gradually, protecting you from MEV attacks.</p>
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-8 h-8 rounded-lg bg-[#FF4E00]/10 flex items-center justify-center">
+                      <svg className="w-4 h-4 text-[#FF4E00]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-sm font-medium text-white">GAD Protection</h3>
+                  </div>
+                  <p className="text-xs text-[#6a7a88] leading-relaxed">No sudden liquidations. Your position is unwound gradually over time, protecting you from MEV attacks.</p>
                 </div>
               </div>
             </div>
@@ -433,9 +436,8 @@ function Dashboard() {
         {mainTab === "lp" && (
           <>
             {/* LP Overview */}
-            <div className="grid grid-cols-3 gap-4 mb-8">
+            <div className="grid grid-cols-2 gap-4 mb-8">
               <MetricCard label="Your LP Value" value={`$${lpTotalValue.toFixed(2)}`} />
-              <MetricCard label="USDC.e APY" value={`${SUPPLY_APY.USDC}%`} color="#4ade80" />
               <MetricCard label="USDC.e APY" value={`${SUPPLY_APY.USDC}%`} color="#4ade80" />
             </div>
 
