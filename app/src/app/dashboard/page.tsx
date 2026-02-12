@@ -120,6 +120,7 @@ function Dashboard() {
   const [withdrawAsset, setWithdrawAsset] = useState<"ETH" | "WBTC">("ETH");
   const [lpAmount, setLpAmount] = useState("");
   const [lpAsset, setLpAsset] = useState<"USDC">("USDC");
+  const [lpPosition, setLpPosition] = useState({ USDC: 0 });
 
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
   const showToast = (message: string, type: "success" | "error" = "success") => setToast({ message, type });
@@ -148,6 +149,7 @@ function Dashboard() {
   const healthFactor = collateralValue > 0 ? (collateralValue * maxLTV / 100) / Math.max(borrowedValue, 1) : 0;
   const maxBorrow = Math.max(0, collateralValue * maxLTV / 100 - borrowedValue);
   const maxWithdrawValue = Math.max(0, collateralValue - (borrowedValue * 100 / maxLTV));
+  const lpTotalValue = lpPosition.USDC * PRICES.USDC;
 
   const toUSDC = (v: string) => parseUnits(v || "0", 6);
   const collateralToken = depositAsset === "WBTC" ? wbtc : wbtc;
@@ -429,25 +431,159 @@ function Dashboard() {
         )}
 
         {mainTab === "lp" && (
-          <div className="p-6 bg-[#051525]/80 border border-[#0a2535] rounded-2xl backdrop-blur-sm">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold">LP Vault</h2>
-              <div className="flex gap-2">
-                <SmallTab active={lpTab === "deposit"} onClick={() => setLpTab("deposit")}>Deposit</SmallTab>
-                <SmallTab active={lpTab === "withdraw"} onClick={() => setLpTab("withdraw")}>Withdraw</SmallTab>
+          <>
+            {/* LP Overview */}
+            <div className="grid grid-cols-3 gap-4 mb-8">
+              <MetricCard label="Your LP Value" value={`$${lpTotalValue.toFixed(2)}`} />
+              <MetricCard label="USDC.e APY" value={`${SUPPLY_APY.USDC}%`} color="#4ade80" />
+              <MetricCard label="USDC.e APY" value={`${SUPPLY_APY.USDC}%`} color="#4ade80" />
+            </div>
+
+            <div className="grid lg:grid-cols-3 gap-6">
+              {/* Main LP Panel */}
+              <div className="lg:col-span-2">
+                {/* LP Tabs */}
+                <div className="flex gap-1 p-1 bg-[#051525] border border-[#0a2535] rounded-xl mb-6 w-fit">
+                  {(["deposit", "withdraw"] as const).map((tab) => (
+                    <button
+                      key={tab}
+                      onClick={() => setLpTab(tab)}
+                      className={`px-6 py-2.5 text-sm font-medium rounded-lg transition-all ${
+                        lpTab === tab
+                          ? "bg-[#FF4E00] text-white"
+                          : "text-[#6a7a88] hover:text-white hover:bg-[#0a2535]"
+                      }`}
+                    >
+                      {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="p-6 bg-[#051525]/80 border border-[#0a2535] rounded-2xl backdrop-blur-sm">
+                  <h3 className="text-xl font-semibold mb-2">
+                    {lpTab === "deposit" ? "Provide Liquidity" : "Withdraw Liquidity"}
+                  </h3>
+                  <p className="text-sm text-[#6a7a88] mb-6">
+                    {lpTab === "deposit"
+                      ? "Earn yield by providing liquidity to the protocol"
+                      : "Withdraw your provided liquidity"}
+                  </p>
+
+                  {/* Asset selector */}
+                  <div className="flex gap-2 mb-4">
+                    {(["USDC.e"] as const).map((asset) => (
+                      <button
+                        key={asset}
+                        onClick={() => setLpAsset("USDC")}
+                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 bg-[#4ade80]/20 text-[#4ade80] border border-[#4ade80]`}
+                      >
+                        {asset}
+                        <span className="text-xs opacity-60">{SUPPLY_APY.USDC}% APY</span>
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="flex gap-3">
+                    <div className="flex-1 relative">
+                      <input
+                        type="number"
+                        placeholder="0.00"
+                        value={lpAmount}
+                        onChange={(e) => setLpAmount(e.target.value)}
+                        className="w-full h-14 bg-[#001520] border border-[#0a2535] rounded-xl px-4 pr-20 text-white placeholder-[#3a4a58] focus:outline-none focus:border-[#4ade80] transition-all"
+                      />
+                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6a7a88] text-sm font-medium">
+                        USDC.e
+                      </span>
+                    </div>
+                    {lpTab === "withdraw" && (
+                      <button
+                        onClick={() => setLpAmount(lpPosition.USDC.toString())}
+                        className="h-14 px-4 bg-[#0a2535] hover:bg-[#1a3545] text-[#4ade80] font-medium rounded-xl transition-all"
+                      >
+                        MAX
+                      </button>
+                    )}
+                    <button
+                      onClick={() => safeTx(async () => {
+                        const amount = parseFloat(lpAmount || "0");
+                        if (lpTab === "deposit") {
+                          await writeContractAsync({ address: usdc, abi: erc20Abi, functionName: "approve", args: [lp, toUSDC(lpAmount)] });
+                          await writeContractAsync({ address: lp, abi: lpAbi, functionName: "deposit", args: [toUSDC(lpAmount)] });
+                          setLpPosition(prev => ({ ...prev, USDC: prev.USDC + amount }));
+                        } else {
+                          await writeContractAsync({ address: lp, abi: lpAbi, functionName: "withdraw", args: [toUSDC(lpAmount)] });
+                          setLpPosition(prev => ({ ...prev, USDC: Math.max(0, prev.USDC - amount) }));
+                        }
+                        setLpAmount("");
+                      }, lpTab === "deposit" ? "LP deposit" : "LP withdraw")}
+                      disabled={!lpAmount}
+                      className={`h-14 px-8 font-semibold rounded-xl transition-all hover:scale-105 disabled:bg-[#0a2535] disabled:text-[#3a4a58] disabled:hover:scale-100 ${
+                        lpTab === "deposit" ? "bg-[#4ade80] hover:bg-[#22c55e] text-black" : "bg-[#FF4E00] hover:bg-[#E64500] text-white"
+                      }`}
+                    >
+                      {lpTab === "deposit" ? "Deposit" : "Withdraw"}
+                    </button>
+                  </div>
+
+                  <div className="mt-6 p-4 bg-[#001520]/50 rounded-xl space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-[#6a7a88]">Your USDC.e in pool</span>
+                      <span className="text-white font-semibold">{lpPosition.USDC.toFixed(2)} USDC.e</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-[#6a7a88]">Estimated yearly earnings</span>
+                      <span className="text-[#4ade80] font-semibold">
+                        ${(lpPosition.USDC * SUPPLY_APY.USDC / 100).toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* LP Sidebar */}
+              <div className="space-y-4">
+                <div className="p-5 bg-[#051525]/80 border border-[#0a2535] rounded-2xl backdrop-blur-sm">
+                  <h3 className="text-sm font-medium text-[#8a9aa8] mb-4">Your LP Positions</h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center py-2">
+                      <span className="text-white">USDC.e</span>
+                      <div className="text-right">
+                        <div className="text-white font-medium">{lpPosition.USDC.toFixed(2)}</div>
+                        <div className="text-xs text-[#4ade80]">{SUPPLY_APY.USDC}% APY</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-5 bg-[#051525]/80 border border-[#0a2535] rounded-2xl backdrop-blur-sm">
+                  <h3 className="text-sm font-medium text-[#8a9aa8] mb-4">Pool Statistics</h3>
+                  <div className="space-y-3">
+                    <InfoRow label="Total USDC.e Pool" value="$1.2M" />
+                    <InfoRow label="Utilization Rate" value={`${protocolStats.utilization}%`} />
+                  </div>
+                </div>
+
+                <div className="p-5 bg-gradient-to-br from-[#0a2535]/80 to-[#051525]/80 border border-[#4ade80]/10 rounded-2xl">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-8 h-8 rounded-lg bg-[#4ade80]/10 flex items-center justify-center">
+                      <svg className="w-4 h-4 text-[#4ade80]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 002.25-2.25V6.75a2.25 2.25 0 00-2.25-2.25H6.75A2.25 2.25 0 004.5 6.75v10.5a2.25 2.25 0 002.25 2.25zm.75-12h9v9h-9v-9z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-sm font-medium text-white">Agent-Native Protocol</h3>
+                  </div>
+                  <p className="text-xs text-[#6a7a88] leading-relaxed mb-2">
+                    AI agents are first-class citizens: they can borrow autonomously AND provide liquidity to earn yield.
+                  </p>
+                  <div className="text-xs text-[#4ade80]/80 space-y-1">
+                    <div>• Agents as borrowers: autonomous credit</div>
+                    <div>• Agents as LPs: yield optimization</div>
+                  </div>
+                </div>
               </div>
             </div>
-            <div className="grid md:grid-cols-2 gap-4 mt-4">
-              <label className="text-sm text-[#8a9aa8]">Amount (USDC.e)
-                <input className="block mt-2 w-full px-3 py-2 rounded text-black" value={lpAmount} onChange={(e) => setLpAmount(e.target.value)} />
-              </label>
-            </div>
-            <div className="grid sm:grid-cols-2 gap-3 mt-4">
-              <Action label="Approve USDC.e → LP" onClick={() => safeTx(() => writeContractAsync({ address: usdc, abi: erc20Abi, functionName: "approve", args: [lp, toUSDC(lpAmount)] }), "Approve LP")} />
-              <Action label="LP Deposit" onClick={() => safeTx(() => writeContractAsync({ address: lp, abi: lpAbi, functionName: "deposit", args: [toUSDC(lpAmount)] }), "LP deposit")} />
-              <Action label="LP Withdraw" onClick={() => safeTx(() => writeContractAsync({ address: lp, abi: lpAbi, functionName: "withdraw", args: [toUSDC(lpAmount)] }), "LP withdraw")} />
-            </div>
-          </div>
+          </>
         )}
 
         <div className="mt-10">
@@ -514,5 +650,14 @@ function Action({ label, onClick }: { label: string; onClick: () => void }) {
     <button className="h-11 px-4 bg-[#0a2535] border border-[#1a3545] rounded-lg hover:bg-[#0d3040] text-left" onClick={onClick}>
       {label}
     </button>
+  );
+}
+
+function InfoRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex justify-between text-sm">
+      <span className="text-[#6a7a88]">{label}</span>
+      <span className="text-white">{value}</span>
+    </div>
   );
 }
