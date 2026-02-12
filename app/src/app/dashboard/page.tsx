@@ -62,6 +62,39 @@ const SUPPLY_APY = {
   USDC: 5.2,
 };
 
+const lendingAbi = [
+  { name: "initializePosition", type: "function", stateMutability: "nonpayable", inputs: [], outputs: [] },
+  { name: "deposit", type: "function", stateMutability: "nonpayable", inputs: [
+    { name: "token", type: "address" },
+    { name: "amount", type: "uint256" },
+  ], outputs: [] },
+  { name: "borrow", type: "function", stateMutability: "nonpayable", inputs: [
+    { name: "token", type: "address" },
+    { name: "amount", type: "uint256" },
+  ], outputs: [] },
+  { name: "repay", type: "function", stateMutability: "nonpayable", inputs: [
+    { name: "token", type: "address" },
+    { name: "amount", type: "uint256" },
+    { name: "amountUsd6", type: "uint256" },
+  ], outputs: [] },
+] as const;
+
+const lpAbi = [
+  { name: "deposit", type: "function", stateMutability: "nonpayable", inputs: [
+    { name: "amount", type: "uint256" },
+  ], outputs: [] },
+  { name: "withdraw", type: "function", stateMutability: "nonpayable", inputs: [
+    { name: "shares", type: "uint256" },
+  ], outputs: [] },
+] as const;
+
+const erc20Abi = [
+  { name: "approve", type: "function", stateMutability: "nonpayable", inputs: [
+    { name: "spender", type: "address" },
+    { name: "amount", type: "uint256" },
+  ], outputs: [{ name: "ok", type: "bool" }] },
+] as const;
+
 function Dashboard() {
   const { address, isConnected } = useAccount();
   const { connect } = useConnect();
