@@ -64,6 +64,14 @@ npm install
 npm run dev
 ```
 
+## 5-minute demo
+
+1) Open https://evm.legasi.io
+2) Connect a wallet on **SKALE Base Sepolia**
+3) Get test tokens (USDC.e / WBTC) as described in the UI
+4) Credit: deposit collateral, borrow, repay
+5) Yield: deposit into the LP vault, then withdraw
+
 ## Demo flow
 
 See `docs/DEMO_FLOW.md`.
