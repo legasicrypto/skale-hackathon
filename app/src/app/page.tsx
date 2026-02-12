@@ -52,27 +52,28 @@ export default function Home() {
             <span className="gradient-text">for AI Agents</span>
           </h1>
 
-          <p className="text-lg md:text-xl text-[#8a9aa8] max-w-2xl mx-auto mb-10 leading-relaxed animate-fade-in-up animate-delay-200">
-            The first lending protocol where AI agents are first-class citizens.
-            Autonomous borrowing, on-chain reputation, and x402 native payments.
+          <p className="text-lg md:text-xl text-[#8a9aa8] max-w-2xl mx-auto mb-4 leading-relaxed animate-fade-in-up animate-delay-200">
+            Built on SKALE Base Sepolia for agent-native credit and yield.
+          </p>
+          <p className="text-sm text-[#6a7a88] max-w-2xl mx-auto mb-10 animate-fade-in-up animate-delay-200">
+            What’s unique: agent‑native credit + yield with on‑chain reputation and risk controls.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up animate-delay-300">
-            <a 
-              href="https://evm.legasi.io"
-              target="_blank"
+            <Link
+              href="/faucet"
               className="h-14 px-8 bg-[#FF4E00] hover:bg-[#E64500] text-white font-semibold rounded-xl transition-all hover:scale-105 hover:shadow-xl hover:shadow-[#FF4E00]/30 flex items-center justify-center gap-2 glow-btn animate-pulse-glow"
             >
-              Live Demo
+              Run the demo in 60s
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
               </svg>
-            </a>
+            </Link>
             <Link
               href="/dashboard"
               className="h-14 px-8 bg-[#0a2535] hover:bg-[#0d3040] border border-[#1a3545] hover:border-[#FF4E00]/30 font-semibold rounded-xl transition-all hover:scale-105 flex items-center justify-center"
             >
-              Launch App
+              Open Dashboard
             </Link>
           </div>
         </div>
@@ -80,33 +81,48 @@ export default function Home() {
 
       {/* Stats */}
       <section className="py-16 px-6 border-y border-[#0a2535] bg-[#00111a]/50 backdrop-blur-sm">
-        <div className="max-w-4xl mx-auto grid grid-cols-3 gap-8">
+        <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-5 gap-6">
           <div className="text-center group">
-            <div className="text-4xl md:text-5xl font-bold text-[#FF4E00] mb-2 group-hover:scale-110 transition-transform">6</div>
-            <div className="text-sm text-[#5a6a78]">EVM Contracts</div>
+            <div className="text-3xl md:text-4xl font-bold text-[#FF4E00] mb-2 group-hover:scale-110 transition-transform">6</div>
+            <div className="text-xs text-[#5a6a78]">Contracts</div>
           </div>
           <div className="text-center group">
-            <div className="text-4xl md:text-5xl font-bold text-[#FF4E00] mb-2 group-hover:scale-110 transition-transform">+5%</div>
-            <div className="text-sm text-[#5a6a78]">Max LTV Bonus</div>
+            <div className="text-3xl md:text-4xl font-bold text-[#FF4E00] mb-2 group-hover:scale-110 transition-transform">SKALE</div>
+            <div className="text-xs text-[#5a6a78]">Base Sepolia</div>
           </div>
           <div className="text-center group">
-            <div className="text-4xl md:text-5xl font-bold text-[#FF4E00] mb-2 group-hover:scale-110 transition-transform">x402</div>
-            <div className="text-sm text-[#5a6a78]">Native Payments</div>
+            <div className="text-3xl md:text-4xl font-bold text-[#FF4E00] mb-2 group-hover:scale-110 transition-transform">0</div>
+            <div className="text-xs text-[#5a6a78]">Gas UX</div>
+          </div>
+          <div className="text-center group">
+            <div className="text-3xl md:text-4xl font-bold text-[#FF4E00] mb-2 group-hover:scale-110 transition-transform">Fast</div>
+            <div className="text-xs text-[#5a6a78]">Finality</div>
+          </div>
+          <div className="text-center group">
+            <div className="text-3xl md:text-4xl font-bold text-[#FF4E00] mb-2 group-hover:scale-110 transition-transform">EVM</div>
+            <div className="text-xs text-[#5a6a78]">Compatible</div>
           </div>
         </div>
       </section>
 
-      {/* Built On */}
+      {/* Why SKALE */}
       <section className="py-20 px-6">
         <div className="max-w-4xl mx-auto">
-          <p className="text-center text-xs text-[#5a6a78] uppercase tracking-widest mb-10">Built on</p>
-          <div className="flex justify-center items-center gap-12 md:gap-20">
-            <a href="https://skale.space/" target="_blank" className="flex items-center gap-3 text-[#5a6a78] hover:text-white transition-all hover:scale-110 group">
-              <span className="text-sm font-medium">SKALE Base Sepolia</span>
-            </a>
-            <a href="https://legasi.io" target="_blank" className="flex items-center gap-3 text-[#5a6a78] hover:text-white transition-all hover:scale-110 group">
-              <span className="text-sm font-medium">Legasi</span>
-            </a>
+          <p className="text-center text-xs text-[#5a6a78] uppercase tracking-widest mb-4">Why SKALE</p>
+          <h3 className="text-center text-2xl md:text-3xl font-bold mb-8">Instant finality, gas‑light UX, EVM compatibility</h3>
+          <div className="grid md:grid-cols-3 gap-5">
+            <div className="p-6 bg-[#051525]/80 border border-[#0a2535] rounded-2xl">
+              <div className="text-sm font-semibold mb-2">Gas‑light UX</div>
+              <p className="text-sm text-[#6a7a88]">Users focus on actions, not gas. Perfect for autonomous agents.</p>
+            </div>
+            <div className="p-6 bg-[#051525]/80 border border-[#0a2535] rounded-2xl">
+              <div className="text-sm font-semibold mb-2">Fast finality</div>
+              <p className="text-sm text-[#6a7a88]">Low latency for credit decisions and automated strategies.</p>
+            </div>
+            <div className="p-6 bg-[#051525]/80 border border-[#0a2535] rounded-2xl">
+              <div className="text-sm font-semibold mb-2">EVM compatible</div>
+              <p className="text-sm text-[#6a7a88]">Seamless integration with existing tooling and wallets.</p>
+            </div>
           </div>
         </div>
       </section>
