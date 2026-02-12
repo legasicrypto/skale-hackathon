@@ -15,7 +15,7 @@ export default function Home() {
           <div className="hidden md:flex items-center gap-8">
             <a href="#features" className="text-[#8a9aa8] hover:text-white transition-all hover:scale-105 text-sm">Features</a>
             <a href="#how-it-works" className="text-[#8a9aa8] hover:text-white transition-all hover:scale-105 text-sm">How it Works</a>
-            <a href="https://github.com/legasicrypto/colosseum-agent-hackathon" target="_blank" className="text-[#8a9aa8] hover:text-white transition-all hover:scale-105 text-sm">Docs</a>
+            <a href="https://github.com/legasicrypto/skale-hackathon" target="_blank" className="text-[#8a9aa8] hover:text-white transition-all hover:scale-105 text-sm">Docs</a>
           </div>
 
           <div className="flex items-center gap-3">
@@ -23,11 +23,11 @@ export default function Home() {
               Dashboard
             </Link>
             <a 
-              href="https://colosseum.com/agent-hackathon/projects/legasi-credit-protocol"
+              href="https://evm.legasi.io"
               target="_blank"
               className="h-9 px-4 bg-[#FF4E00] hover:bg-[#E64500] text-white text-sm font-medium rounded-lg transition-all hover:scale-105 hover:shadow-lg hover:shadow-[#FF4E00]/20 flex items-center glow-btn"
             >
-              Vote
+              Live Demo
             </a>
           </div>
         </div>
@@ -43,7 +43,7 @@ export default function Home() {
           {/* Badge */}
           <div className="inline-flex items-center gap-2 h-8 px-4 bg-[#0a2535]/80 border border-[#1a3545] rounded-full text-xs text-[#8a9aa8] mb-8 backdrop-blur-sm animate-fade-in-up">
             <span className="w-2 h-2 bg-[#FF4E00] rounded-full animate-dot-pulse"></span>
-            Colosseum Agent Hackathon
+            SKALE Hackathon
           </div>
 
           <h1 className="text-5xl md:text-7xl font-bold tracking-tight leading-[1.1] mb-6 animate-fade-in-up animate-delay-100">
@@ -59,11 +59,11 @@ export default function Home() {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up animate-delay-300">
             <a 
-              href="https://colosseum.com/agent-hackathon/projects/legasi-credit-protocol"
+              href="https://evm.legasi.io"
               target="_blank"
               className="h-14 px-8 bg-[#FF4E00] hover:bg-[#E64500] text-white font-semibold rounded-xl transition-all hover:scale-105 hover:shadow-xl hover:shadow-[#FF4E00]/30 flex items-center justify-center gap-2 glow-btn animate-pulse-glow"
             >
-              Vote on Colosseum
+              Live Demo
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
               </svg>
@@ -83,7 +83,7 @@ export default function Home() {
         <div className="max-w-4xl mx-auto grid grid-cols-3 gap-8">
           <div className="text-center group">
             <div className="text-4xl md:text-5xl font-bold text-[#FF4E00] mb-2 group-hover:scale-110 transition-transform">6</div>
-            <div className="text-sm text-[#5a6a78]">Solana Programs</div>
+            <div className="text-sm text-[#5a6a78]">EVM Contracts</div>
           </div>
           <div className="text-center group">
             <div className="text-4xl md:text-5xl font-bold text-[#FF4E00] mb-2 group-hover:scale-110 transition-transform">+5%</div>
@@ -99,24 +99,13 @@ export default function Home() {
       {/* Built On */}
       <section className="py-20 px-6">
         <div className="max-w-4xl mx-auto">
-          <p className="text-center text-xs text-[#5a6a78] uppercase tracking-widest mb-10">Powered by</p>
+          <p className="text-center text-xs text-[#5a6a78] uppercase tracking-widest mb-10">Built on</p>
           <div className="flex justify-center items-center gap-12 md:gap-20">
-            {/* Solana Logo */}
-            <a href="https://solana.com/" target="_blank" className="flex items-center gap-3 text-[#5a6a78] hover:text-white transition-all hover:scale-110 group">
-              <img src="/solana-logo.png" alt="Solana" className="h-8 w-auto opacity-80 group-hover:opacity-100 transition-opacity" />
-              <span className="text-sm font-medium hidden sm:block">Solana</span>
+            <a href="https://skale.space/" target="_blank" className="flex items-center gap-3 text-[#5a6a78] hover:text-white transition-all hover:scale-110 group">
+              <span className="text-sm font-medium">SKALE Base Sepolia</span>
             </a>
-            
-            {/* Pyth Logo */}
-            <a href="https://www.pyth.network/" target="_blank" className="flex items-center gap-3 text-[#5a6a78] hover:text-white transition-all hover:scale-110 group">
-              <img src="/pyth-logo.svg" alt="Pyth" className="h-8 w-auto opacity-80 group-hover:opacity-100 transition-opacity" />
-              <span className="text-sm font-medium hidden sm:block">Pyth</span>
-            </a>
-
-            {/* Jupiter Logo */}
-            <a href="https://jup.ag/" target="_blank" className="flex items-center gap-3 text-[#5a6a78] hover:text-white transition-all hover:scale-110 group">
-              <img src="/jupiter-logo.svg" alt="Jupiter" className="h-8 w-auto opacity-80 group-hover:opacity-100 transition-opacity" />
-              <span className="text-sm font-medium hidden sm:block">Jupiter</span>
+            <a href="https://legasi.io" target="_blank" className="flex items-center gap-3 text-[#5a6a78] hover:text-white transition-all hover:scale-110 group">
+              <span className="text-sm font-medium">Legasi</span>
             </a>
           </div>
         </div>
@@ -213,18 +202,18 @@ export default function Home() {
                 Credit for the Agentic Economy
               </h2>
               <p className="text-[#8a9aa8] mb-10 max-w-lg mx-auto text-lg">
-                Built for the Colosseum Agent Hackathon. Your vote helps us build the future of agent finance.
+                Built on SKALE Base Sepolia. Autonomous credit and yield for the agent economy.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <a
-                  href="https://colosseum.com/agent-hackathon/projects/legasi-credit-protocol"
+                  href="https://evm.legasi.io"
                   target="_blank"
                   className="h-14 px-8 bg-[#FF4E00] hover:bg-[#E64500] text-white font-semibold rounded-xl transition-all hover:scale-105 hover:shadow-xl hover:shadow-[#FF4E00]/30 flex items-center justify-center glow-btn"
                 >
-                  Vote on Colosseum
+                  Live Demo
                 </a>
                 <a
-                  href="https://github.com/legasicrypto/colosseum-agent-hackathon"
+                  href="https://github.com/legasicrypto/skale-hackathon"
                   target="_blank"
                   className="h-14 px-8 bg-[#0a2535] hover:bg-[#0d3040] border border-[#1a3545] hover:border-[#FF4E00]/30 font-semibold rounded-xl transition-all hover:scale-105 flex items-center justify-center"
                 >
@@ -246,11 +235,11 @@ export default function Home() {
             <a href="https://x.com/legasi_xyz" target="_blank" className="text-[#5a6a78] hover:text-[#FF4E00] transition-colors">
               Twitter
             </a>
-            <a href="https://github.com/legasicrypto/colosseum-agent-hackathon" target="_blank" className="text-[#5a6a78] hover:text-[#FF4E00] transition-colors">
+            <a href="https://github.com/legasicrypto/skale-hackathon" target="_blank" className="text-[#5a6a78] hover:text-[#FF4E00] transition-colors">
               GitHub
             </a>
-            <a href="https://colosseum.com/agent-hackathon/projects/legasi-credit-protocol" target="_blank" className="text-[#5a6a78] hover:text-[#FF4E00] transition-colors">
-              Colosseum
+            <a href="https://skale.space/" target="_blank" className="text-[#5a6a78] hover:text-[#FF4E00] transition-colors">
+              SKALE
             </a>
           </div>
         </div>
