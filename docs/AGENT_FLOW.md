@@ -8,6 +8,9 @@ This is the **end‑to‑end agent flow**: register → LP yield → collateral 
 - Contracts: see `docs/DEPLOYMENTS.md`
 
 ## 1) Register agent (waitlist API)
+
+**Coinbase Agentic Wallet**
+- Auth for `valentin@legasi.io` is ready (via `npx awal`).
 POST `/api/agent/register`
 
 ```json

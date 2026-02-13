@@ -81,6 +81,10 @@ See `docs/DEMO_FLOW.md`.
 
 See `docs/AGENT_FLOW.md` for the full register → LP → collateral → borrow → repay → withdraw flow.
 
+## Coinbase Agentic Wallet
+
+Authentication ready for `valentin@legasi.io` (manual login via `npx awal`).
+
 ## Agent skill (EVM)
 
 `skills/legasi-lending-evm/SKILL.md`
