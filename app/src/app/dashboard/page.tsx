@@ -231,14 +231,6 @@ function Dashboard() {
   const supplyApy = Math.max(0, borrowApy * 0.8);
   const maxLtvFromCore = collCfg ? (Number(collCfg[1]) / 100) : 75;
 
-  const protocolStats = {
-    lpPool: lpPoolUsd,
-    totalCollateral: collateralValue,
-    totalBorrowed: borrowedValue,
-    get tvl() { return this.lpPool + this.totalCollateral; },
-    get utilization() { return this.lpPool > 0 ? (this.totalBorrowed / this.lpPool) * 100 : 0; },
-  };
-
   const collateralAmountWBTC = totalCollateralWBTC ? Number(formatUnits(totalCollateralWBTC, 8)) : 0;
   const collateralAmountWETH = totalCollateralWETH ? Number(formatUnits(totalCollateralWETH, 6)) : 0;
   const borrowedAmountUSDC = totalBorrowUSDC ? Number(formatUnits(totalBorrowUSDC, 6)) : 0;
@@ -249,6 +241,14 @@ function Dashboard() {
 
   const collateralValue = collateralAmountWBTC * priceWbtcUsd + collateralAmountWETH * priceWethUsd;
   const borrowedValue = borrowedAmountUSDC * priceUsdcUsd;
+
+  const protocolStats = {
+    lpPool: lpPoolUsd,
+    totalCollateral: collateralValue,
+    totalBorrowed: borrowedValue,
+    get tvl() { return this.lpPool + this.totalCollateral; },
+    get utilization() { return this.lpPool > 0 ? (this.totalBorrowed / this.lpPool) * 100 : 0; },
+  };
   const onchainReputationScore = repData ? Number(repData[0]) : 0;
   const reputationScore = onchainReputationScore;
   const ltvBonus = reputationScore >= 400 ? 5 : reputationScore >= 200 ? 3 : reputationScore >= 100 ? 1 : 0;
