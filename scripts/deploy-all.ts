@@ -7,16 +7,22 @@ async function main() {
   const [deployer] = await ethers.getSigners();
   console.log("Deployer:", deployer.address);
 
-  let usdc = (process.env.USDC_ADDRESS || "").trim();
-  let wbtc = (process.env.WBTC_ADDRESS || "").trim();
-  if (usdc.startsWith("0x") && usdc.length > 42) usdc = usdc.slice(0, 42);
-  if (wbtc.startsWith("0x") && wbtc.length > 42) wbtc = wbtc.slice(0, 42);
-  try {
-    usdc = ethers.getAddress(usdc);
-    wbtc = ethers.getAddress(wbtc);
-  } catch (e) {
-    throw new Error(`Missing or invalid token addresses. USDC=${usdc} WBTC=${wbtc}`);
-  }
+  const Mock = await ethers.getContractFactory("MockERC20");
+
+  const mockUSDC = await Mock.deploy("Mock USDC", "mUSDC", 6);
+  await mockUSDC.waitForDeployment();
+  const usdc = await mockUSDC.getAddress();
+  console.log("Mock USDC:", usdc);
+
+  const mockWBTC = await Mock.deploy("Mock WBTC", "mWBTC", 8);
+  await mockWBTC.waitForDeployment();
+  const wbtc = await mockWBTC.getAddress();
+  console.log("Mock WBTC:", wbtc);
+
+  const mockWETH = await Mock.deploy("Mock WETH", "mWETH", 6);
+  await mockWETH.waitForDeployment();
+  const weth = await mockWETH.getAddress();
+  console.log("Mock WETH:", weth);
 
   const Core = await ethers.getContractFactory("LegasiCore");
   const core = await Core.deploy(deployer.address);
@@ -49,11 +55,19 @@ async function main() {
   console.log("X402Receipt:", await x402.getAddress());
 
   // register collateral + borrowable
-  await (await core.registerCollateral(ethers.ZeroAddress, 7500, 8000, 500, 18)).wait(); // ETH
+  await (await core.registerCollateral(weth, 7500, 8000, 500, 6)).wait(); // WETH
   await (await core.registerCollateral(wbtc, 7000, 7500, 500, 8)).wait(); // WBTC
-  await (await core.registerBorrowable(usdc, 500, 6)).wait(); // USDC
+  await (await core.registerBorrowable(usdc, 900, 6)).wait(); // USDC (9% borrow)
 
-  console.log("Initialized collateral + borrowable");
+  // seed prices (USD6)
+  await (await core.updatePrice(weth, 2600_000000)).wait();
+  await (await core.updatePrice(wbtc, 45000_000000)).wait();
+  await (await core.updatePrice(usdc, 1_000000)).wait();
+
+  // seed lending with USDC liquidity for demo borrows
+  await (await mockUSDC.mint(await lending.getAddress(), 1_000_000_000_000n)).wait(); // 1,000,000 USDC (6d)
+
+  console.log("Initialized collateral + borrowable + prices + seeded lending");
 }
 
 main().catch((e) => {

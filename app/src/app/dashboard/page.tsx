@@ -233,8 +233,8 @@ function Dashboard() {
 
   const protocolStats = {
     lpPool: lpPoolUsd,
-    totalCollateral: 0,
-    totalBorrowed: 0,
+    totalCollateral: collateralValue,
+    totalBorrowed: borrowedValue,
     get tvl() { return this.lpPool + this.totalCollateral; },
     get utilization() { return this.lpPool > 0 ? (this.totalBorrowed / this.lpPool) * 100 : 0; },
   };
