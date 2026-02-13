@@ -101,6 +101,10 @@ const erc20Abi = [
   { name: "balanceOf", type: "function", stateMutability: "view", inputs: [
     { name: "owner", type: "address" },
   ], outputs: [{ name: "", type: "uint256" }] },
+  { name: "mint", type: "function", stateMutability: "nonpayable", inputs: [
+    { name: "to", type: "address" },
+    { name: "amount", type: "uint256" },
+  ], outputs: [] },
 ] as const;
 
 const coreAbi = [
@@ -176,6 +180,7 @@ function Dashboard() {
   const { data: totalCollateralWETH, refetch: refetchCollWETH } = useReadContract({ address: lending, abi: lendingAbi, functionName: "totalCollateralOf", args: [address ?? "0x0000000000000000000000000000000000000000", weth] });
   const { data: totalBorrowUSDC, refetch: refetchBorrowUSDC } = useReadContract({ address: lending, abi: lendingAbi, functionName: "totalBorrowOf", args: [address ?? "0x0000000000000000000000000000000000000000", usdc] });
   const { data: usdcBalanceRaw, refetch: refetchUsdcBal } = useReadContract({ address: usdc, abi: erc20Abi, functionName: "balanceOf", args: [address ?? "0x0000000000000000000000000000000000000000"] });
+  const { data: poolLiquidityRaw, refetch: refetchPoolLiq } = useReadContract({ address: usdc, abi: erc20Abi, functionName: "balanceOf", args: [lending] });
 
   const [mainTab, setMainTab] = useState<"borrow" | "lp">("borrow");
   const [actionTab, setActionTab] = useState<"supply" | "borrow" | "repay" | "withdraw">("supply");
@@ -242,6 +247,7 @@ function Dashboard() {
   const collateralAmountWETH = totalCollateralWETH ? Number(formatUnits(totalCollateralWETH, 6)) : 0;
   const borrowedAmountUSDC = totalBorrowUSDC ? Number(formatUnits(totalBorrowUSDC, 6)) : 0;
   const usdcBalance = usdcBalanceRaw ? Number(formatUnits(usdcBalanceRaw, 6)) : 0;
+  const poolLiquidity = poolLiquidityRaw ? Number(formatUnits(poolLiquidityRaw, 6)) : 0;
 
   const priceWethUsd = priceWETH ? Number(priceWETH[0]) / 1e6 : FALLBACK_PRICES.WETH;
   const priceWbtcUsd = priceWBTC ? Number(priceWBTC[0]) / 1e6 : FALLBACK_PRICES.WBTC;
@@ -281,6 +287,7 @@ function Dashboard() {
     refetchCollWETH();
     refetchBorrowUSDC();
     refetchUsdcBal();
+    refetchPoolLiq();
     refetchCollCfg();
     refetchPriceWETH();
     refetchPriceWBTC();
@@ -501,6 +508,14 @@ function Dashboard() {
                         <button onClick={() => setBorrowAmount(maxBorrow.toFixed(2))} className="h-14 px-4 bg-[#0a2535] hover:bg-[#1a3545] text-[#FF4E00] font-medium rounded-xl transition-all">MAX</button>
                         <button onClick={() => safeTx(async () => {
                           if (!requireAddress(lending, "Lending")) return;
+                          if (Number(borrowAmount) > poolLiquidity) {
+                            showToast("Pool has insufficient liquidity. Seed pool first.", "error");
+                            return;
+                          }
+                          if (Number(borrowAmount) > maxBorrow) {
+                            showToast("Exceeds your borrow limit (LTV). Supply more collateral.", "error");
+                            return;
+                          }
                           await ensurePosition();
                           return writeContractAsync({ address: lending, abi: lendingAbi, functionName: "borrow", args: [usdc, toUSDC(borrowAmount)] });
                         }, "Borrow")}
@@ -512,7 +527,17 @@ function Dashboard() {
                       <div className="p-4 bg-[#001520]/50 rounded-xl space-y-2">
                         <div className="flex justify-between text-sm"><span className="text-[#6a7a88]">Available to borrow</span><span className="text-[#FF4E00] font-semibold">${maxBorrow.toFixed(2)}</span></div>
                         <div className="flex justify-between text-sm"><span className="text-[#6a7a88]">Borrow APY</span><span className="text-white">{borrowApy}%</span></div>
+                        <div className="flex justify-between text-sm"><span className="text-[#6a7a88]">Pool Liquidity</span><span className="text-white">{poolLiquidity.toLocaleString()} USDC</span></div>
                       </div>
+                      {poolLiquidity < 10000 && (
+                        <button 
+                          onClick={() => safeTx(async () => {
+                            return writeContractAsync({ address: usdc, abi: erc20Abi, functionName: "mint", args: [lending, BigInt(100000 * 1e6)] });
+                          }, "Seed Pool")}
+                          className="mt-3 w-full h-10 bg-[#0a2535] hover:bg-[#1a3545] text-[#FF4E00] text-sm font-medium rounded-xl transition-all border border-[#FF4E00]/30">
+                          ⚡ Seed Pool with 100k USDC (demo)
+                        </button>
+                      )}
                     </div>
                   )}
 
@@ -581,7 +606,7 @@ function Dashboard() {
                             showToast(`Would breach LTV. Repay debt first.`, "error");
                             return;
                           }
-                          await writeContractAsync({ address: lending, abi: lendingAbi, functionName: "withdraw", args: [token, withdrawAmountToUnits(withdrawAmount)] });
+                          return writeContractAsync({ address: lending, abi: lendingAbi, functionName: "withdraw", args: [token, withdrawAmountToUnits(withdrawAmount)] });
                         }, "Withdraw")}
                         disabled={!withdrawAmount}
                         className="h-14 px-8 bg-[#FF4E00] hover:bg-[#E64500] text-white font-semibold rounded-xl transition-all hover:scale-105 disabled:bg-[#0a2535] disabled:text-[#3a4a58] disabled:hover:scale-100">Withdraw</button>
