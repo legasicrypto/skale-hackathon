@@ -320,6 +320,7 @@ function Dashboard() {
         showToast(`${label} not sent`, "error");
         return;
       }
+      showToast(`${label} sent ${hash.slice(0, 6)}…${hash.slice(-4)}`, "success");
       if (publicClient) {
         await publicClient.waitForTransactionReceipt({ hash });
       }
@@ -447,13 +448,7 @@ function Dashboard() {
                           <input type="number" placeholder="0.00" value={depositAmount} onChange={(e) => setDepositAmount(e.target.value)} className="w-full h-14 bg-[#001520] border border-[#0a2535] rounded-xl px-4 pr-20 text-white placeholder-[#3a4a58] focus:outline-none focus:border-[#FF4E00] transition-all" />
                           <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6a7a88] text-sm font-medium">{depositAsset}</span>
                         </div>
-                        <button onClick={() => safeTx(() => {
-                          if (!requireAddress(collateralToken, depositAsset)) return;
-                          if (!requireAddress(lending, "Lending")) return;
-                          return writeContractAsync({ address: collateralToken, abi: erc20Abi, functionName: "approve", args: [lending, collateralAmountToUnits(depositAmount)] });
-                        }, "Approve collateral")}
-                          disabled={!depositAmount}
-                          className="h-14 px-4 bg-[#0a2535] hover:bg-[#1a3545] text-[#FF4E00] font-medium rounded-xl transition-all">Approve</button>
+                        <div className="h-14 px-4 flex items-center text-xs text-[#6a7a88]">Auto‑approve included</div>
                         <button onClick={() => safeTx(async () => {
                           if (!requireAddress(lending, "Lending")) return;
                           if (!requireAddress(collateralToken, depositAsset)) return;
