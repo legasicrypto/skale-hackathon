@@ -301,10 +301,10 @@ function Dashboard() {
     return true;
   };
 
-  async function safeTx(fn: () => Promise<`0x${string}`>, label: string) {
+  async function safeTx(fn: () => Promise<`0x${string}` | void>, label: string) {
     try {
       const hash = await fn();
-      if (publicClient) {
+      if (hash && publicClient) {
         await publicClient.waitForTransactionReceipt({ hash });
       }
       showToast(`${label} confirmed`, "success");
