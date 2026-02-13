@@ -471,7 +471,6 @@ function Dashboard() {
                         <button onClick={() => safeTx(async () => {
                           if (!requireAddress(lending, "Lending")) return;
                           if (!requireAddress(collateralToken, depositAsset)) return;
-                          await ensurePosition();
                           const approveHash = await writeContractAsync({ address: collateralToken, abi: erc20Abi, functionName: "approve", args: [lending, collateralAmountToUnits(depositAmount)] });
                           if (publicClient) {
                             await publicClient.waitForTransactionReceipt({ hash: approveHash });
@@ -484,7 +483,6 @@ function Dashboard() {
                         </button>
                       </div>
                       <div className="mt-3 text-xs text-[#6a7a88]">≈ ${(parseFloat(depositAmount || "0") * (depositAsset === "WETH" ? priceWethUsd : priceWbtcUsd)).toFixed(2)} USD</div>
-                      {lastTx && <div className="mt-2 text-xs text-[#6a7a88]">Last tx: {lastTx}</div>}
                     </div>
                   )}
 
