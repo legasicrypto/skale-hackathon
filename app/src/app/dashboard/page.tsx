@@ -98,6 +98,9 @@ const erc20Abi = [
     { name: "spender", type: "address" },
     { name: "amount", type: "uint256" },
   ], outputs: [{ name: "ok", type: "bool" }] },
+  { name: "balanceOf", type: "function", stateMutability: "view", inputs: [
+    { name: "owner", type: "address" },
+  ], outputs: [{ name: "", type: "uint256" }] },
 ] as const;
 
 const coreAbi = [
@@ -172,6 +175,7 @@ function Dashboard() {
   const { data: totalCollateralWBTC, refetch: refetchCollWBTC } = useReadContract({ address: lending, abi: lendingAbi, functionName: "totalCollateralOf", args: [address ?? "0x0000000000000000000000000000000000000000", wbtc] });
   const { data: totalCollateralWETH, refetch: refetchCollWETH } = useReadContract({ address: lending, abi: lendingAbi, functionName: "totalCollateralOf", args: [address ?? "0x0000000000000000000000000000000000000000", weth] });
   const { data: totalBorrowUSDC, refetch: refetchBorrowUSDC } = useReadContract({ address: lending, abi: lendingAbi, functionName: "totalBorrowOf", args: [address ?? "0x0000000000000000000000000000000000000000", usdc] });
+  const { data: usdcBalanceRaw, refetch: refetchUsdcBal } = useReadContract({ address: usdc, abi: erc20Abi, functionName: "balanceOf", args: [address ?? "0x0000000000000000000000000000000000000000"] });
 
   const [mainTab, setMainTab] = useState<"borrow" | "lp">("borrow");
   const [actionTab, setActionTab] = useState<"supply" | "borrow" | "repay" | "withdraw">("supply");
@@ -237,6 +241,7 @@ function Dashboard() {
   const collateralAmountWBTC = totalCollateralWBTC ? Number(formatUnits(totalCollateralWBTC, 8)) : 0;
   const collateralAmountWETH = totalCollateralWETH ? Number(formatUnits(totalCollateralWETH, 6)) : 0;
   const borrowedAmountUSDC = totalBorrowUSDC ? Number(formatUnits(totalBorrowUSDC, 6)) : 0;
+  const usdcBalance = usdcBalanceRaw ? Number(formatUnits(usdcBalanceRaw, 6)) : 0;
 
   const priceWethUsd = priceWETH ? Number(priceWETH[0]) / 1e6 : FALLBACK_PRICES.WETH;
   const priceWbtcUsd = priceWBTC ? Number(priceWBTC[0]) / 1e6 : FALLBACK_PRICES.WBTC;
@@ -275,6 +280,7 @@ function Dashboard() {
     refetchCollWBTC();
     refetchCollWETH();
     refetchBorrowUSDC();
+    refetchUsdcBal();
     refetchCollCfg();
     refetchPriceWETH();
     refetchPriceWBTC();
@@ -523,6 +529,14 @@ function Dashboard() {
                         <div className="h-14 px-4 flex items-center text-xs text-[#6a7a88]">Auto‑approve included</div>
                         <button onClick={() => safeTx(async () => {
                           if (!requireAddress(lending, "Lending") || !requireAddress(usdc, "USDC")) return;
+                          if (Number(repayAmount) > borrowedAmountUSDC) {
+                            showToast("Repay amount exceeds borrowed", "error");
+                            return;
+                          }
+                          if (Number(repayAmount) > usdcBalance) {
+                            showToast("Insufficient USDC balance", "error");
+                            return;
+                          }
                           await ensurePosition();
                           const approveHash = await writeContractAsync({ address: usdc, abi: erc20Abi, functionName: "approve", args: [lending, toUSDC(repayAmount)] });
                           if (publicClient) {
