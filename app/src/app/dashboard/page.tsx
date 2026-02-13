@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
-import { useAccount, useConnect, useDisconnect, useWriteContract } from "wagmi";
+import { useAccount, useConnect, useDisconnect, useWriteContract, useReadContract } from "wagmi";
 import { injected } from "wagmi/connectors";
 import Link from "next/link";
-import { parseUnits } from "viem";
+import { parseUnits, formatUnits } from "viem";
 import { CONTRACTS } from "@/lib/evmContracts";
 
 // Toast
@@ -42,28 +42,19 @@ function DashboardLoading() {
   );
 }
 
-const ASSET_TYPES = {
-  ETH: 0,
-  WBTC: 1,
-  USDC: 2,
-};
-
-const PRICES = {
-  ETH: 2500,
+const FALLBACK_PRICES = {
+  WETH: 2600,
   WBTC: 45000,
   USDC: 1,
 };
 
-const BORROW_APY = {
-  USDC: 8.5,
-};
-
-const SUPPLY_APY = {
-  USDC: 5.2,
-};
-
 const lendingAbi = [
   { name: "initializePosition", type: "function", stateMutability: "nonpayable", inputs: [], outputs: [] },
+  { name: "configureAgent", type: "function", stateMutability: "nonpayable", inputs: [
+    { name: "dailyLimitUsd6", type: "uint256" },
+    { name: "autoRepay", type: "bool" },
+    { name: "x402", type: "bool" },
+  ], outputs: [] },
   { name: "deposit", type: "function", stateMutability: "nonpayable", inputs: [
     { name: "token", type: "address" },
     { name: "amount", type: "uint256" },
@@ -77,6 +68,18 @@ const lendingAbi = [
     { name: "amount", type: "uint256" },
     { name: "amountUsd6", type: "uint256" },
   ], outputs: [] },
+  { name: "withdraw", type: "function", stateMutability: "nonpayable", inputs: [
+    { name: "token", type: "address" },
+    { name: "amount", type: "uint256" },
+  ], outputs: [] },
+  { name: "totalCollateralOf", type: "function", stateMutability: "view", inputs: [
+    { name: "owner", type: "address" },
+    { name: "token", type: "address" },
+  ], outputs: [{ name: "", type: "uint256" }] },
+  { name: "totalBorrowOf", type: "function", stateMutability: "view", inputs: [
+    { name: "owner", type: "address" },
+    { name: "token", type: "address" },
+  ], outputs: [{ name: "", type: "uint256" }] },
 ] as const;
 
 const lpAbi = [
@@ -86,6 +89,8 @@ const lpAbi = [
   { name: "withdraw", type: "function", stateMutability: "nonpayable", inputs: [
     { name: "shares", type: "uint256" },
   ], outputs: [] },
+  { name: "totalDeposits", type: "function", stateMutability: "view", inputs: [], outputs: [{ name: "", type: "uint256" }] },
+  { name: "totalShares", type: "function", stateMutability: "view", inputs: [], outputs: [{ name: "", type: "uint256" }] },
 ] as const;
 
 const erc20Abi = [
@@ -93,6 +98,55 @@ const erc20Abi = [
     { name: "spender", type: "address" },
     { name: "amount", type: "uint256" },
   ], outputs: [{ name: "ok", type: "bool" }] },
+] as const;
+
+const coreAbi = [
+  { name: "borrowableConfigs", type: "function", stateMutability: "view", inputs: [
+    { name: "token", type: "address" },
+  ], outputs: [
+    { name: "isActive", type: "bool" },
+    { name: "interestRateBps", type: "uint16" },
+    { name: "decimals", type: "uint8" },
+  ] },
+  { name: "collateralConfigs", type: "function", stateMutability: "view", inputs: [
+    { name: "token", type: "address" },
+  ], outputs: [
+    { name: "isActive", type: "bool" },
+    { name: "maxLtvBps", type: "uint16" },
+    { name: "liquidationThresholdBps", type: "uint16" },
+    { name: "liquidationBonusBps", type: "uint16" },
+    { name: "decimals", type: "uint8" },
+  ] },
+  { name: "priceFeeds", type: "function", stateMutability: "view", inputs: [
+    { name: "token", type: "address" },
+  ], outputs: [
+    { name: "priceUsd6", type: "uint256" },
+    { name: "lastUpdate", type: "uint256" },
+  ] },
+] as const;
+
+const reputationAbi = [
+  { name: "getReputation", type: "function", stateMutability: "view", inputs: [
+    { name: "agent", type: "address" },
+  ], outputs: [
+    { name: "score", type: "uint256" },
+    { name: "successfulRepayments", type: "uint256" },
+    { name: "totalRepaidUsd6", type: "uint256" },
+    { name: "gadEvents", type: "uint256" },
+    { name: "lastUpdate", type: "uint256" },
+  ] },
+] as const;
+
+const lendingReadAbi = [
+  { name: "agentConfigs", type: "function", stateMutability: "view", inputs: [
+    { name: "", type: "address" },
+  ], outputs: [
+    { name: "dailyBorrowLimitUsd6", type: "uint256" },
+    { name: "dailyBorrowedUsd6", type: "uint256" },
+    { name: "periodStart", type: "uint256" },
+    { name: "autoRepayEnabled", type: "bool" },
+    { name: "x402Enabled", type: "bool" },
+  ] },
 ] as const;
 
 function Dashboard() {
@@ -105,22 +159,41 @@ function Dashboard() {
   const lending = CONTRACTS.lending as `0x${string}`;
   const lp = CONTRACTS.lp as `0x${string}`;
   const wbtc = CONTRACTS.wbtc as `0x${string}`;
+  const weth = CONTRACTS.weth as `0x${string}`;
+  const core = CONTRACTS.core as `0x${string}`;
+  const reputation = CONTRACTS.reputation as `0x${string}`;
+
+  const { data: totalDeposits } = useReadContract({ address: lp, abi: lpAbi, functionName: "totalDeposits" });
+  const { data: totalShares } = useReadContract({ address: lp, abi: lpAbi, functionName: "totalShares" });
+  const { data: borrowCfg, refetch: refetchBorrowCfg } = useReadContract({ address: core, abi: coreAbi, functionName: "borrowableConfigs", args: [usdc] });
+  const { data: repData, refetch: refetchRep } = useReadContract({ address: reputation, abi: reputationAbi, functionName: "getReputation", args: [address ?? "0x0000000000000000000000000000000000000000"] });
+  const { data: agentCfgData, refetch: refetchAgentCfg } = useReadContract({ address: lending, abi: lendingReadAbi, functionName: "agentConfigs", args: [address ?? "0x0000000000000000000000000000000000000000"] });
+  const { data: totalCollateralWBTC, refetch: refetchCollWBTC } = useReadContract({ address: lending, abi: lendingAbi, functionName: "totalCollateralOf", args: [address ?? "0x0000000000000000000000000000000000000000", wbtc] });
+  const { data: totalCollateralWETH, refetch: refetchCollWETH } = useReadContract({ address: lending, abi: lendingAbi, functionName: "totalCollateralOf", args: [address ?? "0x0000000000000000000000000000000000000000", weth] });
+  const { data: totalBorrowUSDC, refetch: refetchBorrowUSDC } = useReadContract({ address: lending, abi: lendingAbi, functionName: "totalBorrowOf", args: [address ?? "0x0000000000000000000000000000000000000000", usdc] });
 
   const [mainTab, setMainTab] = useState<"borrow" | "lp">("borrow");
   const [actionTab, setActionTab] = useState<"supply" | "borrow" | "repay" | "withdraw">("supply");
   const [lpTab, setLpTab] = useState<"deposit" | "withdraw">("deposit");
 
   const [depositAmount, setDepositAmount] = useState("");
-  const [depositAsset, setDepositAsset] = useState<"ETH" | "WBTC">("ETH");
+  const [depositAsset, setDepositAsset] = useState<"WETH" | "WBTC">("WETH");
   const [borrowAmount, setBorrowAmount] = useState("");
   const [borrowAsset, setBorrowAsset] = useState<"USDC">("USDC");
   const [repayAmount, setRepayAmount] = useState("");
   const [repayAsset, setRepayAsset] = useState<"USDC">("USDC");
   const [withdrawAmount, setWithdrawAmount] = useState("");
-  const [withdrawAsset, setWithdrawAsset] = useState<"ETH" | "WBTC">("ETH");
+  const [withdrawAsset, setWithdrawAsset] = useState<"WETH" | "WBTC">("WETH");
   const [lpAmount, setLpAmount] = useState("");
   const [lpAsset, setLpAsset] = useState<"USDC">("USDC");
   const [lpPosition, setLpPosition] = useState({ USDC: 0 });
+
+  const [accountAgeDays, setAccountAgeDays] = useState(0);
+
+  const { data: collCfg, refetch: refetchCollCfg } = useReadContract({ address: core, abi: coreAbi, functionName: "collateralConfigs", args: [depositAsset === "WETH" ? weth : wbtc] });
+  const { data: priceWETH, refetch: refetchPriceWETH } = useReadContract({ address: core, abi: coreAbi, functionName: "priceFeeds", args: [weth] });
+  const { data: priceWBTC, refetch: refetchPriceWBTC } = useReadContract({ address: core, abi: coreAbi, functionName: "priceFeeds", args: [wbtc] });
+  const { data: priceUSDC, refetch: refetchPriceUSDC } = useReadContract({ address: core, abi: coreAbi, functionName: "priceFeeds", args: [usdc] });
 
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
   const showToast = (message: string, type: "success" | "error" = "success") => setToast({ message, type });
@@ -132,32 +205,106 @@ function Dashboard() {
     x402Enabled: false,
   });
 
+  useEffect(() => {
+    if (!agentCfgData) return;
+    const dailyLimitUsd6 = Number(agentCfgData[0] || 0) / 1e6;
+    const autoRepay = Boolean(agentCfgData[3]);
+    const x402Enabled = Boolean(agentCfgData[4]);
+    const enabled = dailyLimitUsd6 > 0 || autoRepay || x402Enabled;
+    setAgentConfig({
+      enabled,
+      dailyLimit: dailyLimitUsd6,
+      autoRepay,
+      x402Enabled,
+    });
+  }, [agentCfgData]);
+
+  useEffect(() => {
+    if (!repData) return;
+    const last = Number(repData[4] || 0);
+    if (!last) return;
+    setAccountAgeDays(Math.floor((Date.now() / 1000 - last) / 86400));
+  }, [repData]);
+
+  const lpPoolUsd = totalDeposits ? Number(formatUnits(totalDeposits, 6)) : 0;
+  const borrowApy = borrowCfg ? (Number(borrowCfg[1]) / 100) : 9;
+  const supplyApy = Math.max(0, borrowApy * 0.8);
+  const maxLtvFromCore = collCfg ? (Number(collCfg[1]) / 100) : 75;
+
   const protocolStats = {
-    lpPool: 2_000_000,
-    totalCollateral: 1_500_000,
-    totalBorrowed: 2_000_000,
+    lpPool: lpPoolUsd,
+    totalCollateral: 0,
+    totalBorrowed: 0,
     get tvl() { return this.lpPool + this.totalCollateral; },
-    get utilization() { return (this.totalBorrowed / this.lpPool) * 100; },
+    get utilization() { return this.lpPool > 0 ? (this.totalBorrowed / this.lpPool) * 100 : 0; },
   };
 
-  const collateralValue = 0;
-  const borrowedValue = 0;
-  const reputationScore = agentConfig.enabled ? (agentConfig.dailyLimit === 5000 ? 200 : 100) : 0;
+  const collateralAmountWBTC = totalCollateralWBTC ? Number(formatUnits(totalCollateralWBTC, 8)) : 0;
+  const collateralAmountWETH = totalCollateralWETH ? Number(formatUnits(totalCollateralWETH, 6)) : 0;
+  const borrowedAmountUSDC = totalBorrowUSDC ? Number(formatUnits(totalBorrowUSDC, 6)) : 0;
+
+  const priceWethUsd = priceWETH ? Number(priceWETH[0]) / 1e6 : FALLBACK_PRICES.WETH;
+  const priceWbtcUsd = priceWBTC ? Number(priceWBTC[0]) / 1e6 : FALLBACK_PRICES.WBTC;
+  const priceUsdcUsd = priceUSDC ? Number(priceUSDC[0]) / 1e6 : FALLBACK_PRICES.USDC;
+
+  const collateralValue = collateralAmountWBTC * priceWbtcUsd + collateralAmountWETH * priceWethUsd;
+  const borrowedValue = borrowedAmountUSDC * priceUsdcUsd;
+  const onchainReputationScore = repData ? Number(repData[0]) : 0;
+  const reputationScore = onchainReputationScore;
   const ltvBonus = reputationScore >= 400 ? 5 : reputationScore >= 200 ? 3 : reputationScore >= 100 ? 1 : 0;
-  const maxLTV = 75 + ltvBonus;
+  const maxLTV = maxLtvFromCore + ltvBonus;
   const currentLTV = collateralValue > 0 ? (borrowedValue / collateralValue) * 100 : 0;
   const healthFactor = collateralValue > 0 ? (collateralValue * maxLTV / 100) / Math.max(borrowedValue, 1) : 0;
   const maxBorrow = Math.max(0, collateralValue * maxLTV / 100 - borrowedValue);
   const maxWithdrawValue = Math.max(0, collateralValue - (borrowedValue * 100 / maxLTV));
-  const lpTotalValue = lpPosition.USDC * PRICES.USDC;
+  const lpTotalValue = lpPosition.USDC * priceUsdcUsd;
 
-  const toUSDC = (v: string) => parseUnits(v || "0", 6);
-  const collateralToken = depositAsset === "WBTC" ? wbtc : wbtc;
+  const toAmount = (v: string, decimals: number) => parseUnits(v || "0", decimals);
+  const toUSDC = (v: string) => toAmount(v, 6);
+  const toWBTC = (v: string) => toAmount(v, 8);
+  const toWETH = (v: string) => toAmount(v, 6);
+  const collateralToken = depositAsset === "WETH" ? weth : wbtc;
+
+  const refreshAll = () => {
+    refetchBorrowCfg();
+    refetchRep();
+    refetchAgentCfg();
+    refetchCollWBTC();
+    refetchCollWETH();
+    refetchBorrowUSDC();
+    refetchCollCfg();
+    refetchPriceWETH();
+    refetchPriceWBTC();
+    refetchPriceUSDC();
+  };
+
+  useEffect(() => {
+    refreshAll();
+    const t = setInterval(refreshAll, 15000);
+    return () => clearInterval(t);
+  }, [address, depositAsset]);
+
+  const lpSharesForAmount = (amount: bigint) => {
+    if (!totalDeposits || !totalShares || totalDeposits === BigInt(0) || totalShares === BigInt(0)) return amount;
+    return (amount * totalShares) / totalDeposits;
+  };
+
+  const collateralAmountToUnits = (v: string) => depositAsset === "WETH" ? toWETH(v) : toWBTC(v);
+  const withdrawAmountToUnits = (v: string) => withdrawAsset === "WETH" ? toWETH(v) : toWBTC(v);
+
+  const requireAddress = (addr: string | undefined, label: string) => {
+    if (!addr || !addr.startsWith("0x")) {
+      showToast(`${label} address missing`, "error");
+      return false;
+    }
+    return true;
+  };
 
   async function safeTx(fn: () => Promise<unknown>, label: string) {
     try {
       await fn();
       showToast(`${label} submitted`, "success");
+      refreshAll();
     } catch (e) {
       showToast(`${label} failed`, "error");
     }
@@ -172,12 +319,12 @@ function Dashboard() {
             <div className="absolute inset-0 bg-[#FF4E00]/20 rounded-full blur-3xl scale-150"></div>
             <img src="/legasi-logo.svg" alt="Legasi" className="h-16 w-auto mb-6 relative z-10" />
           </div>
-          <h1 className="text-3xl font-bold mb-3">Connect Wallet</h1>
+          <h1 className="text-3xl font-bold mb-3">Connect MetaMask</h1>
           <p className="text-[#6a7a88] mb-8 text-center max-w-sm">
-            Connect your wallet to access the Legasi protocol
+            Connect MetaMask to access the Legasi protocol
           </p>
           <button className="!bg-[#FF4E00] hover:bg-[#E64500] text-white font-semibold rounded-xl h-14 px-8" onClick={() => connect({ connector: injected() })}>
-            Connect Wallet
+            Connect MetaMask
           </button>
         </div>
       </div>
@@ -263,7 +410,7 @@ function Dashboard() {
                       <h3 className="text-xl font-semibold mb-2">Supply Collateral</h3>
                       <p className="text-sm text-[#6a7a88] mb-6">Deposit collateral to borrow against</p>
                       <div className="flex gap-2 mb-4">
-                        {(["ETH", "WBTC"] as const).map((asset) => (
+                        {(["WETH", "WBTC"] as const).map((asset) => (
                           <button
                             key={asset}
                             onClick={() => setDepositAsset(asset)}
@@ -280,14 +427,24 @@ function Dashboard() {
                           <input type="number" placeholder="0.00" value={depositAmount} onChange={(e) => setDepositAmount(e.target.value)} className="w-full h-14 bg-[#001520] border border-[#0a2535] rounded-xl px-4 pr-20 text-white placeholder-[#3a4a58] focus:outline-none focus:border-[#FF4E00] transition-all" />
                           <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6a7a88] text-sm font-medium">{depositAsset}</span>
                         </div>
-                        {/* Approve handled in action tx on Supply */}
-                        <button onClick={() => safeTx(() => writeContractAsync({ address: lending, abi: lendingAbi, functionName: "deposit", args: [collateralToken, toUSDC(depositAmount)] }), "Supply")}
+                        <button onClick={() => safeTx(() => {
+                          if (!requireAddress(collateralToken, depositAsset)) return Promise.resolve();
+                          if (!requireAddress(lending, "Lending")) return Promise.resolve();
+                          return writeContractAsync({ address: collateralToken, abi: erc20Abi, functionName: "approve", args: [lending, collateralAmountToUnits(depositAmount)] });
+                        }, "Approve collateral")}
+                          disabled={!depositAmount}
+                          className="h-14 px-4 bg-[#0a2535] hover:bg-[#1a3545] text-[#FF4E00] font-medium rounded-xl transition-all">Approve</button>
+                        <button onClick={() => safeTx(() => {
+                          if (!requireAddress(lending, "Lending")) return Promise.resolve();
+                          if (!requireAddress(collateralToken, depositAsset)) return Promise.resolve();
+                          return writeContractAsync({ address: lending, abi: lendingAbi, functionName: "deposit", args: [collateralToken, collateralAmountToUnits(depositAmount)] });
+                        }, "Supply")}
                           disabled={!depositAmount}
                           className="h-14 px-8 bg-[#FF4E00] hover:bg-[#E64500] text-white font-semibold rounded-xl transition-all hover:scale-105 disabled:bg-[#0a2535] disabled:text-[#3a4a58] disabled:hover:scale-100">
                           Supply
                         </button>
                       </div>
-                      <div className="mt-3 text-xs text-[#6a7a88]">≈ ${(parseFloat(depositAmount || "0") * PRICES[depositAsset]).toFixed(2)} USD</div>
+                      <div className="mt-3 text-xs text-[#6a7a88]">≈ ${(parseFloat(depositAmount || "0") * (depositAsset === "WETH" ? priceWethUsd : priceWbtcUsd)).toFixed(2)} USD</div>
                     </div>
                   )}
 
@@ -299,7 +456,7 @@ function Dashboard() {
                       <div className="flex gap-2 mb-4">
                         {(["USDC"] as const).map((asset) => (
                           <button key={asset} onClick={() => setBorrowAsset(asset)} className="px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 bg-[#FF4E00]/20 text-[#FF4E00] border border-[#FF4E00]">
-                            USDC.e <span className="text-xs opacity-60">{BORROW_APY.USDC}% APY</span>
+                            USDC.e <span className="text-xs opacity-60">{borrowApy}% APY</span>
                           </button>
                         ))}
                       </div>
@@ -317,7 +474,7 @@ function Dashboard() {
                       </div>
                       <div className="p-4 bg-[#001520]/50 rounded-xl space-y-2">
                         <div className="flex justify-between text-sm"><span className="text-[#6a7a88]">Available to borrow</span><span className="text-[#FF4E00] font-semibold">${maxBorrow.toFixed(2)}</span></div>
-                        <div className="flex justify-between text-sm"><span className="text-[#6a7a88]">Borrow APY</span><span className="text-white">{BORROW_APY.USDC}%</span></div>
+                        <div className="flex justify-between text-sm"><span className="text-[#6a7a88]">Borrow APY</span><span className="text-white">{borrowApy}%</span></div>
                       </div>
                     </div>
                   )}
@@ -348,7 +505,7 @@ function Dashboard() {
                       <h3 className="text-xl font-semibold mb-2">Withdraw Collateral</h3>
                       <p className="text-sm text-[#6a7a88] mb-6">Withdraw your supplied collateral</p>
                       <div className="flex gap-2 mb-4">
-                        {(["ETH", "WBTC"] as const).map((asset) => (
+                        {(["WETH", "WBTC"] as const).map((asset) => (
                           <button key={asset} onClick={() => setWithdrawAsset(asset)} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${withdrawAsset === asset ? "bg-[#FF4E00]/20 text-[#FF4E00] border border-[#FF4E00]" : "bg-[#001520] text-[#6a7a88] border border-[#0a2535] hover:border-[#FF4E00]/30"}`}>{asset}</button>
                         ))}
                       </div>
@@ -357,7 +514,13 @@ function Dashboard() {
                           <input type="number" placeholder="0.00" value={withdrawAmount} onChange={(e) => setWithdrawAmount(e.target.value)} className="w-full h-14 bg-[#001520] border border-[#0a2535] rounded-xl px-4 pr-20 text-white placeholder-[#3a4a58] focus:outline-none focus:border-[#FF4E00] transition-all" />
                           <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6a7a88] text-sm font-medium">{withdrawAsset}</span>
                         </div>
-                        <button disabled className="h-14 px-8 bg-[#0a2535] text-[#3a4a58] font-semibold rounded-xl">Withdraw</button>
+                        <button onClick={() => safeTx(async () => {
+                          const token = withdrawAsset === "WETH" ? weth : wbtc;
+                          if (!requireAddress(lending, "Lending") || !requireAddress(token, withdrawAsset)) return;
+                          await writeContractAsync({ address: lending, abi: lendingAbi, functionName: "withdraw", args: [token, withdrawAmountToUnits(withdrawAmount)] });
+                        }, "Withdraw")}
+                        disabled={!withdrawAmount}
+                        className="h-14 px-8 bg-[#FF4E00] hover:bg-[#E64500] text-white font-semibold rounded-xl transition-all hover:scale-105 disabled:bg-[#0a2535] disabled:text-[#3a4a58] disabled:hover:scale-100">Withdraw</button>
                       </div>
                       <div className="p-4 bg-[#001520]/50 rounded-xl space-y-2">
                         <div className="flex justify-between text-sm"><span className="text-[#6a7a88]">Total collateral value</span><span className="text-white font-semibold">${collateralValue.toFixed(2)}</span></div>
@@ -378,9 +541,18 @@ function Dashboard() {
                     </span>
                   </div>
                   <div className="grid grid-cols-3 gap-3">
-                    <AgentButton title="Standard" description="$1,000/day" active={agentConfig.enabled && agentConfig.dailyLimit === 1000} onClick={() => setAgentConfig({ enabled: true, dailyLimit: 1000, autoRepay: true, x402Enabled: true })} />
-                    <AgentButton title="Pro" description="$5,000/day" highlighted active={agentConfig.enabled && agentConfig.dailyLimit === 5000} onClick={() => setAgentConfig({ enabled: true, dailyLimit: 5000, autoRepay: true, x402Enabled: true })} />
-                    <AgentButton title="Disable" description="Manual only" active={!agentConfig.enabled} onClick={() => setAgentConfig({ enabled: false, dailyLimit: 0, autoRepay: false, x402Enabled: false })} />
+                    <AgentButton title="Standard" description="$1,000/day" active={agentConfig.enabled && agentConfig.dailyLimit === 1000} onClick={() => safeTx(async () => {
+                      await writeContractAsync({ address: lending, abi: lendingAbi, functionName: "configureAgent", args: [toUSDC("1000"), true, true] });
+                      setAgentConfig({ enabled: true, dailyLimit: 1000, autoRepay: true, x402Enabled: true });
+                    }, "Configure agent")} />
+                    <AgentButton title="Pro" description="$5,000/day" highlighted active={agentConfig.enabled && agentConfig.dailyLimit === 5000} onClick={() => safeTx(async () => {
+                      await writeContractAsync({ address: lending, abi: lendingAbi, functionName: "configureAgent", args: [toUSDC("5000"), true, true] });
+                      setAgentConfig({ enabled: true, dailyLimit: 5000, autoRepay: true, x402Enabled: true });
+                    }, "Configure agent")} />
+                    <AgentButton title="Disable" description="Manual only" active={!agentConfig.enabled} onClick={() => safeTx(async () => {
+                      await writeContractAsync({ address: lending, abi: lendingAbi, functionName: "configureAgent", args: [BigInt(0), false, false] });
+                      setAgentConfig({ enabled: false, dailyLimit: 0, autoRepay: false, x402Enabled: false });
+                    }, "Configure agent")} />
                   </div>
                   {agentConfig.enabled && (
                     <div className="mt-4 p-4 bg-[#001520]/50 rounded-xl text-xs text-[#8a9aa8] space-y-2">
@@ -398,11 +570,11 @@ function Dashboard() {
                   <h3 className="text-sm font-medium text-[#8a9aa8] mb-4">Your Positions</h3>
                   <div className="mb-4">
                     <div className="text-xs text-[#6a7a88] mb-2">Collateral</div>
-                    <div className="text-sm text-[#3a4a58]">No collateral supplied</div>
+                    <div className="text-sm text-white">{collateralAmountWETH.toFixed(4)} WETH / {collateralAmountWBTC.toFixed(4)} WBTC</div>
                   </div>
                   <div>
                     <div className="text-xs text-[#6a7a88] mb-2">Borrowed</div>
-                    <div className="text-sm text-[#3a4a58]">No active borrows</div>
+                    <div className="text-sm text-white">{borrowedAmountUSDC.toFixed(2)} USDC.e</div>
                   </div>
                 </div>
 
@@ -410,9 +582,9 @@ function Dashboard() {
                   <h3 className="text-sm font-medium text-[#8a9aa8] mb-4">Reputation</h3>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between"><span className="text-[#6a7a88]">Score</span><span>{Math.floor(reputationScore)}</span></div>
-                    <div className="flex justify-between"><span className="text-[#6a7a88]">Repayments</span><span>0</span></div>
-                    <div className="flex justify-between"><span className="text-[#6a7a88]">GAD Events</span><span>0</span></div>
-                    <div className="flex justify-between"><span className="text-[#6a7a88]">Account Age</span><span>0d</span></div>
+                    <div className="flex justify-between"><span className="text-[#6a7a88]">Repayments</span><span>{repData ? Number(repData[1]) : 0}</span></div>
+                    <div className="flex justify-between"><span className="text-[#6a7a88]">GAD Events</span><span>{repData ? Number(repData[3]) : 0}</span></div>
+                    <div className="flex justify-between"><span className="text-[#6a7a88]">Account Age</span><span>{accountAgeDays}d</span></div>
                     <div className="flex justify-between"><span className="text-[#6a7a88]">LTV Bonus</span><span className="text-[#FF4E00]">+{ltvBonus}%</span></div>
                   </div>
                 </div>
@@ -438,7 +610,7 @@ function Dashboard() {
             {/* LP Overview */}
             <div className="grid grid-cols-2 gap-4 mb-8">
               <MetricCard label="Your LP Value" value={`$${lpTotalValue.toFixed(2)}`} />
-              <MetricCard label="USDC.e APY" value={`${SUPPLY_APY.USDC}%`} color="#4ade80" />
+              <MetricCard label="USDC.e APY" value={`${supplyApy.toFixed(1)}%`} color="#4ade80" />
             </div>
 
             <div className="grid lg:grid-cols-3 gap-6">
@@ -480,7 +652,7 @@ function Dashboard() {
                         className={`px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 bg-[#4ade80]/20 text-[#4ade80] border border-[#4ade80]`}
                       >
                         {asset}
-                        <span className="text-xs opacity-60">{SUPPLY_APY.USDC}% APY</span>
+                        <span className="text-xs opacity-60">{supplyApy.toFixed(1)}% APY</span>
                       </button>
                     ))}
                   </div>
@@ -514,7 +686,8 @@ function Dashboard() {
                           await writeContractAsync({ address: lp, abi: lpAbi, functionName: "deposit", args: [toUSDC(lpAmount)] });
                           setLpPosition(prev => ({ ...prev, USDC: prev.USDC + amount }));
                         } else {
-                          await writeContractAsync({ address: lp, abi: lpAbi, functionName: "withdraw", args: [toUSDC(lpAmount)] });
+                          const shares = lpSharesForAmount(toUSDC(lpAmount));
+                          await writeContractAsync({ address: lp, abi: lpAbi, functionName: "withdraw", args: [shares] });
                           setLpPosition(prev => ({ ...prev, USDC: Math.max(0, prev.USDC - amount) }));
                         }
                         setLpAmount("");
@@ -536,7 +709,7 @@ function Dashboard() {
                     <div className="flex justify-between text-sm">
                       <span className="text-[#6a7a88]">Estimated yearly earnings</span>
                       <span className="text-[#4ade80] font-semibold">
-                        ${(lpPosition.USDC * SUPPLY_APY.USDC / 100).toFixed(2)}
+                        ${(lpPosition.USDC * supplyApy / 100).toFixed(2)}
                       </span>
                     </div>
                   </div>
@@ -552,7 +725,7 @@ function Dashboard() {
                       <span className="text-white">USDC.e</span>
                       <div className="text-right">
                         <div className="text-white font-medium">{lpPosition.USDC.toFixed(2)}</div>
-                        <div className="text-xs text-[#4ade80]">{SUPPLY_APY.USDC}% APY</div>
+                        <div className="text-xs text-[#4ade80]">{supplyApy.toFixed(1)}% APY</div>
                       </div>
                     </div>
                   </div>
@@ -599,6 +772,7 @@ function Dashboard() {
 }
 
 function Nav({ connected, onConnect, address }: { connected: boolean; onConnect: () => void; address?: string }) {
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-[#001520]/80 backdrop-blur-xl border-b border-[#0a2535]">
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -608,9 +782,16 @@ function Nav({ connected, onConnect, address }: { connected: boolean; onConnect:
         <div className="flex items-center gap-3">
           <a href="/faucet" className="text-sm text-[#8a9aa8] hover:text-white">Faucet</a>
           {!connected ? (
-            <button className="h-9 px-4 bg-[#FF4E00] hover:bg-[#E64500] text-white rounded-xl font-semibold" onClick={onConnect}>Connect Wallet</button>
+            <button className="h-9 px-4 bg-[#FF4E00] hover:bg-[#E64500] text-white rounded-xl font-semibold" onClick={onConnect}>Connect MetaMask</button>
           ) : (
-            <button className="h-9 px-4 bg-[#FF4E00] hover:bg-[#E64500] text-white rounded-xl font-semibold">{address?.slice(0, 6)}…{address?.slice(-4)}</button>
+            <div className="relative">
+            <button className="h-9 px-4 bg-[#FF4E00] hover:bg-[#E64500] text-white rounded-xl font-semibold" onClick={() => setUserMenuOpen((v) => !v)}>{address?.slice(0, 6)}…{address?.slice(-4)}</button>
+            {userMenuOpen && (
+              <div className="absolute right-0 mt-2 w-40 bg-[#051525] border border-[#0a2535] rounded-xl shadow-xl z-50">
+                <button className="w-full text-left px-4 py-2 text-sm text-white hover:bg-[#0a2535] rounded-xl" onClick={onConnect}>Disconnect</button>
+              </div>
+            )}
+          </div>
           )}
         </div>
       </div>

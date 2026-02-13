@@ -174,29 +174,6 @@ body {
   animation: countUp 0.5s ease-out forwards;
 }
 
-/* Wallet adapter button overrides */
-.wallet-adapter-button {
-  background: var(--primary) !important;
-  border-radius: 0.75rem !important;
-  font-weight: 600 !important;
-  transition: all 0.2s !important;
-}
-
-.wallet-adapter-button:hover {
-  background: var(--primary-dark) !important;
-  transform: translateY(-2px);
-}
-
-.wallet-adapter-modal-wrapper {
-  background: rgba(0, 21, 32, 0.95) !important;
-}
-
-.wallet-adapter-modal-container {
-  background: #051525 !important;
-  border: 1px solid rgba(255, 78, 0, 0.2) !important;
-  border-radius: 1rem !important;
-}
-
 /* Range slider styling */
 input[type="range"] {
   -webkit-appearance: none;

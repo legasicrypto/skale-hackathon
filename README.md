@@ -27,17 +27,18 @@ See `docs/DEPLOYMENTS.md` for the canonical list.
 
 Known addresses:
 
-- Core: `0xb7686193A5756D79f54cff6C79deF07d7feCF1Bb`
-- ReputationRegistry: `0x31012ff6238195F48AD809C935E52D2c9A1Ce569`
-- Lending: `0x55Fcfb8f43708b7Abd8440E47fA3E0a89396874c`
-- LP: `0xB6B8e039C5288318fEe5FDeC9C8bDd17757ee716`
-- GAD: `0x3595220DEE5535A0Dc8E81c73FC1399fd18c5681`
-- X402Receipt: `0x71918F82E7f8203aa3D13223d843fbbab4b2ba5C`
+- Core: `0x67B2A0975eC1C904Aac6698a70588189Cb16D0bC`
+- ReputationRegistry: `0x4E0aDada1456970741782bBfbFbaf504aa6464df`
+- Lending: `0xDb3D91d87f836a082904d58D44b0B16d0a5B19EA`
+- LP: `0x785bB8D1724143A21CfbfA6EE24d8FF2695B482d`
+- GAD: `0xc8A43cAEe96Fc32D51C1c2e23f3D9aD38e71c750`
+- X402Receipt: `0x9ddc81fd1A9bE220702929ed0Aaf097c793938E0`
 
 Tokens used in the demo:
 
 - USDC.e: `0x2e08028E3C4c2356572E096d8EF835cD5C6030bD6`
 - WBTC: `0x4512eaCD4186b025186e1cF6cc0D89497c530e87`
+- WETH: `0xaEc8Fd44FeB4377BE90c168352497e98741Df59a`
 
 ## Repo structure
 
@@ -67,7 +68,7 @@ npm run dev
 ## 5-minute demo
 
 1) Open https://evm.legasi.io
-2) Connect a wallet on **SKALE Base Sepolia**
+2) Connect MetaMask on **SKALE Base Sepolia**
 3) Get test tokens (USDC.e / WBTC) as described in the UI
 4) Credit: deposit collateral, borrow, repay
 5) Yield: deposit into the LP vault, then withdraw
