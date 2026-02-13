@@ -310,9 +310,12 @@ function Dashboard() {
     }
   };
 
-  async function safeTx(fn: () => Promise<`0x${string}` | void>, label: string) {
+  async function safeTx(fn: () => Promise<`0x${string}` | void> | void, label: string) {
     try {
-      const hash = await fn();
+      const res = fn();
+      const hash = res && typeof (res as Promise<unknown>).then === "function"
+        ? await (res as Promise<`0x${string}` | void>)
+        : (res as `0x${string}` | void);
       if (!hash) {
         showToast(`${label} not sent`, "error");
         return;
