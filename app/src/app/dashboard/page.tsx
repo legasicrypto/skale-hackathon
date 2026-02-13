@@ -304,7 +304,9 @@ function Dashboard() {
   async function safeTx(fn: () => Promise<`0x${string}`>, label: string) {
     try {
       const hash = await fn();
-      await publicClient.waitForTransactionReceipt({ hash });
+      if (publicClient) {
+        await publicClient.waitForTransactionReceipt({ hash });
+      }
       showToast(`${label} confirmed`, "success");
       refreshAll();
     } catch (e) {
