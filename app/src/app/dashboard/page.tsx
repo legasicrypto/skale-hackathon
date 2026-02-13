@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
-import { useAccount, useConnect, useDisconnect, useWriteContract, useReadContract } from "wagmi";
+import { useAccount, useConnect, useDisconnect, useWriteContract, useReadContract, usePublicClient } from "wagmi";
 import { injected } from "wagmi/connectors";
 import Link from "next/link";
 import { parseUnits, formatUnits } from "viem";
@@ -154,6 +154,7 @@ function Dashboard() {
   const { connect } = useConnect();
   const { disconnect } = useDisconnect();
   const { writeContractAsync } = useWriteContract();
+  const publicClient = usePublicClient();
 
   const usdc = CONTRACTS.usdc as `0x${string}`;
   const lending = CONTRACTS.lending as `0x${string}`;
@@ -300,10 +301,11 @@ function Dashboard() {
     return true;
   };
 
-  async function safeTx(fn: () => Promise<unknown>, label: string) {
+  async function safeTx(fn: () => Promise<`0x${string}`>, label: string) {
     try {
-      await fn();
-      showToast(`${label} submitted`, "success");
+      const hash = await fn();
+      await publicClient.waitForTransactionReceipt({ hash });
+      showToast(`${label} confirmed`, "success");
       refreshAll();
     } catch (e) {
       showToast(`${label} failed`, "error");
