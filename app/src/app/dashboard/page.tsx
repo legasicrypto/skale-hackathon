@@ -144,6 +144,24 @@ const reputationAbi = [
   ] },
 ] as const;
 
+const x402Abi = [
+  { name: "record", type: "function", stateMutability: "nonpayable", inputs: [
+    { name: "paymentId", type: "bytes32" },
+    { name: "payer", type: "address" },
+    { name: "recipient", type: "address" },
+    { name: "amount", type: "uint256" },
+  ], outputs: [] },
+  { name: "receipts", type: "function", stateMutability: "view", inputs: [
+    { name: "paymentId", type: "bytes32" },
+  ], outputs: [
+    { name: "paymentId", type: "bytes32" },
+    { name: "payer", type: "address" },
+    { name: "recipient", type: "address" },
+    { name: "amount", type: "uint256" },
+    { name: "paidAt", type: "uint256" },
+  ] },
+] as const;
+
 const lendingReadAbi = [
   { name: "agentConfigs", type: "function", stateMutability: "view", inputs: [
     { name: "", type: "address" },
@@ -170,6 +188,7 @@ function Dashboard() {
   const weth = CONTRACTS.weth as `0x${string}`;
   const core = CONTRACTS.core as `0x${string}`;
   const reputation = CONTRACTS.reputation as `0x${string}`;
+  const x402 = CONTRACTS.x402 as `0x${string}`;
 
   const { data: totalDeposits } = useReadContract({ address: lp, abi: lpAbi, functionName: "totalDeposits" });
   const { data: totalShares } = useReadContract({ address: lp, abi: lpAbi, functionName: "totalShares" });
@@ -614,7 +633,74 @@ function Dashboard() {
                     </div>
                   )}
                 </div>
+
+                {/* x402 Payment Demo */}
+                <div className="mt-6 p-6 bg-gradient-to-br from-[#051525]/80 to-[#0a1a2e]/80 border border-[#1a3545] rounded-2xl backdrop-blur-sm">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-xl bg-[#FF4E00]/10 flex items-center justify-center">
+                      <span className="text-lg">⚡</span>
+                    </div>
+                    <div>
+                      <h3 className="text-base font-semibold text-white">x402 Payment Demo</h3>
+                      <p className="text-xs text-[#6a7a88]">HTTP 402 machine-to-machine payments</p>
+                    </div>
+                  </div>
+                  
+                  <div className="p-4 bg-[#001520]/60 rounded-xl mb-4">
+                    <div className="text-xs text-[#6a7a88] mb-2">Simulated Service Request</div>
+                    <div className="font-mono text-sm text-white bg-[#000a10] p-3 rounded-lg">
+                      <div className="text-[#FF4E00]">GET /api/premium-data</div>
+                      <div className="text-[#6a7a88]">→ 402 Payment Required</div>
+                      <div className="text-[#4ade80]">Cost: 1 USDC</div>
+                    </div>
+                  </div>
+
+                  <button 
+                    onClick={() => safeTx(async () => {
+                      // Generate payment ID
+                      const paymentId = `0x${Array.from(crypto.getRandomValues(new Uint8Array(32))).map(b => b.toString(16).padStart(2, '0')).join('')}` as `0x${string}`;
+                      const serviceProvider = "0x000000000000000000000000000000000000dEaD" as `0x${string}`; // Demo recipient
+                      const paymentAmount = BigInt(1_000_000); // 1 USDC
+                      
+                      // First approve USDC to x402 contract
+                      const approveHash = await writeContractAsync({ 
+                        address: usdc, 
+                        abi: erc20Abi, 
+                        functionName: "approve", 
+                        args: [x402, paymentAmount] 
+                      });
+                      if (publicClient) await publicClient.waitForTransactionReceipt({ hash: approveHash });
+                      
+                      // Record the payment on-chain
+                      return writeContractAsync({ 
+                        address: x402, 
+                        abi: x402Abi, 
+                        functionName: "record", 
+                        args: [paymentId, address!, serviceProvider, paymentAmount] 
+                      });
+                    }, "x402 Payment")}
+                    disabled={!agentConfig.x402Enabled}
+                    className="w-full h-12 bg-[#FF4E00] hover:bg-[#E64500] text-white font-semibold rounded-xl transition-all hover:scale-[1.02] disabled:bg-[#0a2535] disabled:text-[#3a4a58] disabled:hover:scale-100 flex items-center justify-center gap-2"
+                  >
+                    <span>💸</span> Pay 1 USDC via x402
+                  </button>
+                  
+                  {!agentConfig.x402Enabled && (
+                    <p className="text-xs text-[#6a7a88] text-center mt-3">Enable x402 in Agent Configuration first</p>
+                  )}
+                  
+                  <div className="mt-4 text-xs text-[#6a7a88]">
+                    <div className="font-medium text-white mb-2">How it works:</div>
+                    <ol className="space-y-1 list-decimal list-inside">
+                      <li>Agent requests premium API endpoint</li>
+                      <li>Server returns HTTP 402 with payment details</li>
+                      <li>Agent pays via x402Receipt contract</li>
+                      <li>Server verifies on-chain receipt, delivers data</li>
+                    </ol>
+                  </div>
+                </div>
               </div>
+            </div>
 
               {/* Sidebar */}
               <div className="space-y-4">
