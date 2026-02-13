@@ -1,6 +1,6 @@
-# Legasi — SKALE Hackathon
+# Legasi — x402 Hackathon
 
-**Agentic credit and yield infrastructure on SKALE Base Sepolia.**
+**x402 Payment Protocol + Credit Infrastructure for AI Agents on SKALE.**
 
 🌐 **Live Demo:** https://evm.legasi.io
 
@@ -8,18 +8,24 @@
 
 ## What is Legasi?
 
-Legasi is **credit infrastructure for AI agents**. We enable autonomous systems to:
+Legasi implements **x402 (HTTP 402 Payment Required)** for the agentic economy:
 
-- **Borrow** USDC against collateral (WETH, WBTC)
-- **Earn yield** via LP vaults
-- **Build reputation** through on-chain credit scoring
-- **Avoid liquidations** with Gradual Auto-Deleveraging (GAD)
-- **Execute flash loans** for arbitrage operations
+- **x402 Payments** — On-chain receipts for machine-to-machine payments
+- **Credit Lines** — Agents borrow USDC to fund x402 payments
+- **On-chain Reputation** — Payment history improves credit terms
+- **Flash Loans** — Zero-collateral loans for arbitrage (0.09% fee)
+- **Gradual Deleveraging** — No sudden liquidations
+
+### The x402 Flow
+
+```
+Agent → Service (HTTP 402) → Agent pays via x402Receipt → Service delivers
+```
 
 ### Why SKALE?
 
-- **Zero gas UX** — Agents focus on logic, not fees
-- **Fast finality** — Sub-second confirmations for credit decisions
+- **Zero gas** — Perfect for high-frequency x402 payments
+- **Fast finality** — Sub-second confirmations
 - **EVM compatible** — Standard tooling (wagmi, viem, ethers)
 
 ---

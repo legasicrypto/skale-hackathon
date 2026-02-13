@@ -11,7 +11,7 @@ export default function Home() {
           <div className="flex items-center">
             <img src="/legasi-logo.svg" alt="Legasi" className="h-8 w-auto" />
           </div>
-          
+
           <div className="hidden md:flex items-center gap-8">
             <a href="#features" className="text-[#8a9aa8] hover:text-white transition-all hover:scale-105 text-sm">Features</a>
             <a href="#how-it-works" className="text-[#8a9aa8] hover:text-white transition-all hover:scale-105 text-sm">How it Works</a>
@@ -22,7 +22,7 @@ export default function Home() {
             <Link href="/dashboard" className="text-sm text-[#8a9aa8] hover:text-white transition">
               Dashboard
             </Link>
-            <a 
+            <a
               href="https://evm.legasi.io"
               target="_blank"
               className="h-9 px-4 bg-[#FF4E00] hover:bg-[#E64500] text-white text-sm font-medium rounded-lg transition-all hover:scale-105 hover:shadow-lg hover:shadow-[#FF4E00]/20 flex items-center glow-btn"
@@ -38,25 +38,25 @@ export default function Home() {
         {/* Background decoration */}
         <div className="absolute top-20 left-1/4 w-96 h-96 bg-[#FF4E00]/5 rounded-full blur-3xl"></div>
         <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-[#FF4E00]/3 rounded-full blur-3xl"></div>
-        
+
         <div className="max-w-4xl mx-auto text-center relative z-10">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 h-8 px-4 bg-[#0a2535]/80 border border-[#1a3545] rounded-full text-xs text-[#8a9aa8] mb-8 backdrop-blur-sm animate-fade-in-up">
-            <span className="w-2 h-2 bg-[#FF4E00] rounded-full animate-dot-pulse"></span>
-            SKALE Hackathon
+          <div className="inline-flex items-center gap-2 h-8 px-4 bg-[#FF4E00]/10 border border-[#FF4E00]/30 rounded-full text-xs text-[#FF4E00] mb-8 backdrop-blur-sm animate-fade-in-up font-medium">
+            <span className="text-sm">⚡</span>
+            x402 Hackathon
           </div>
 
           <h1 className="text-5xl md:text-7xl font-bold tracking-tight leading-[1.1] mb-6 animate-fade-in-up animate-delay-100">
-            Credit Infrastructure
+            <span className="gradient-text">x402</span> Payment Rails
             <br />
-            <span className="gradient-text">for AI Agents</span>
+            for AI Agents
           </h1>
 
           <p className="text-lg md:text-xl text-[#8a9aa8] max-w-2xl mx-auto mb-4 leading-relaxed animate-fade-in-up animate-delay-200">
-            Built on SKALE Base Sepolia for agent-native credit and yield.
+            HTTP 402 native payments + credit infrastructure on SKALE.
           </p>
           <p className="text-sm text-[#6a7a88] max-w-2xl mx-auto mb-10 animate-fade-in-up animate-delay-200">
-            What’s unique: agent‑native credit + yield with on‑chain reputation and risk controls.
+            Agents pay for services, borrow capital, and build on-chain reputation — all through x402.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up animate-delay-300">
@@ -83,24 +83,24 @@ export default function Home() {
       <section className="py-16 px-6 border-y border-[#0a2535] bg-[#00111a]/50 backdrop-blur-sm">
         <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-5 gap-6">
           <div className="text-center group">
-            <div className="text-3xl md:text-4xl font-bold text-[#FF4E00] mb-2 group-hover:scale-110 transition-transform">6</div>
+            <div className="text-3xl md:text-4xl font-bold text-[#FF4E00] mb-2 group-hover:scale-110 transition-transform">x402</div>
+            <div className="text-xs text-[#5a6a78]">Native Payments</div>
+          </div>
+          <div className="text-center group">
+            <div className="text-3xl md:text-4xl font-bold text-[#FF4E00] mb-2 group-hover:scale-110 transition-transform">7</div>
             <div className="text-xs text-[#5a6a78]">Contracts</div>
+          </div>
+          <div className="text-center group">
+            <div className="text-3xl md:text-4xl font-bold text-[#FF4E00] mb-2 group-hover:scale-110 transition-transform">0</div>
+            <div className="text-xs text-[#5a6a78]">Gas Fees</div>
+          </div>
+          <div className="text-center group">
+            <div className="text-3xl md:text-4xl font-bold text-[#FF4E00] mb-2 group-hover:scale-110 transition-transform">0.09%</div>
+            <div className="text-xs text-[#5a6a78]">Flash Fee</div>
           </div>
           <div className="text-center group">
             <div className="text-3xl md:text-4xl font-bold text-[#FF4E00] mb-2 group-hover:scale-110 transition-transform">SKALE</div>
             <div className="text-xs text-[#5a6a78]">Base Sepolia</div>
-          </div>
-          <div className="text-center group">
-            <div className="text-3xl md:text-4xl font-bold text-[#FF4E00] mb-2 group-hover:scale-110 transition-transform">0</div>
-            <div className="text-xs text-[#5a6a78]">Gas UX</div>
-          </div>
-          <div className="text-center group">
-            <div className="text-3xl md:text-4xl font-bold text-[#FF4E00] mb-2 group-hover:scale-110 transition-transform">Fast</div>
-            <div className="text-xs text-[#5a6a78]">Finality</div>
-          </div>
-          <div className="text-center group">
-            <div className="text-3xl md:text-4xl font-bold text-[#FF4E00] mb-2 group-hover:scale-110 transition-transform">EVM</div>
-            <div className="text-xs text-[#5a6a78]">Compatible</div>
           </div>
         </div>
       </section>
@@ -109,10 +109,10 @@ export default function Home() {
       <section className="py-20 px-6">
         <div className="max-w-4xl mx-auto">
           <p className="text-center text-xs text-[#5a6a78] uppercase tracking-widest mb-4">Why SKALE</p>
-          <h3 className="text-center text-2xl md:text-3xl font-bold mb-8">Instant finality, gas‑light UX, EVM compatibility</h3>
+          <h3 className="text-center text-2xl md:text-3xl font-bold mb-8">Instant finality, gas-light UX, EVM compatibility</h3>
           <div className="grid md:grid-cols-3 gap-5">
             <div className="p-6 bg-[#051525]/80 border border-[#0a2535] rounded-2xl">
-              <div className="text-sm font-semibold mb-2">Gas‑light UX</div>
+              <div className="text-sm font-semibold mb-2">Gas-light UX</div>
               <p className="text-sm text-[#6a7a88]">Users focus on actions, not gas. Perfect for autonomous agents.</p>
             </div>
             <div className="p-6 bg-[#051525]/80 border border-[#0a2535] rounded-2xl">
@@ -127,39 +127,74 @@ export default function Home() {
         </div>
       </section>
 
+      {/* x402 Hero Feature */}
+      <section className="py-20 px-6">
+        <div className="max-w-4xl mx-auto">
+          <div className="p-8 md:p-12 bg-gradient-to-br from-[#FF4E00]/10 via-[#051525] to-[#001520] border border-[#FF4E00]/20 rounded-3xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-[#FF4E00]/5 rounded-full blur-3xl"></div>
+            <div className="relative z-10">
+              <div className="inline-flex items-center gap-2 h-7 px-3 bg-[#FF4E00]/20 border border-[#FF4E00]/30 rounded-full text-xs text-[#FF4E00] mb-6 font-medium">
+                ⚡ Core Protocol
+              </div>
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">x402 Payment Protocol</h2>
+              <p className="text-lg text-[#8a9aa8] mb-6 max-w-2xl">
+                HTTP 402 "Payment Required" — finally implemented for the agentic economy. 
+                Agents pay for premium APIs, services, and data with on-chain receipts.
+              </p>
+              <div className="grid md:grid-cols-3 gap-4 mb-8">
+                <div className="p-4 bg-[#001520]/60 rounded-xl">
+                  <div className="text-2xl mb-2">🤖</div>
+                  <div className="text-sm font-medium mb-1">Agent → Service</div>
+                  <div className="text-xs text-[#6a7a88]">Agent requests premium endpoint</div>
+                </div>
+                <div className="p-4 bg-[#001520]/60 rounded-xl">
+                  <div className="text-2xl mb-2">💸</div>
+                  <div className="text-sm font-medium mb-1">402 → Pay</div>
+                  <div className="text-xs text-[#6a7a88]">Server returns payment request</div>
+                </div>
+                <div className="p-4 bg-[#001520]/60 rounded-xl">
+                  <div className="text-2xl mb-2">✅</div>
+                  <div className="text-sm font-medium mb-1">Receipt → Access</div>
+                  <div className="text-xs text-[#6a7a88]">On-chain proof unlocks content</div>
+                </div>
+              </div>
+              <div className="font-mono text-sm bg-[#000a10] p-4 rounded-xl border border-[#0a2535]">
+                <div className="text-[#6a7a88]">// Agent pays for premium API</div>
+                <div><span className="text-[#FF4E00]">x402Receipt</span>.record(paymentId, payer, recipient, amount);</div>
+                <div className="text-[#4ade80]">// → Event: X402Paid ✓</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Features */}
       <section id="features" className="py-24 px-6 bg-[#00111a] relative">
         <div className="absolute inset-0 bg-grid opacity-50"></div>
         <div className="max-w-5xl mx-auto relative z-10">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Built for Autonomous Systems</h2>
-            <p className="text-[#8a9aa8] text-lg">Everything AI agents need to access capital</p>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Complete Agent Infrastructure</h2>
+            <p className="text-[#8a9aa8] text-lg">x402 payments backed by credit, yield, and reputation</p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
             <FeatureCard
-              title="Autonomous Borrowing"
-              description="Agents borrow within pre-configured limits without human approval."
+              title="x402 Native"
+              description="On-chain payment receipts for HTTP 402 flows. Agents pay, servers verify, content delivered."
+            >
+              <IconPayment />
+            </FeatureCard>
+            <FeatureCard
+              title="Credit Lines"
+              description="Agents borrow USDC against collateral. Pre-configured limits, no human approval needed."
             >
               <IconRobot />
             </FeatureCard>
             <FeatureCard
               title="On-Chain Reputation"
-              description="Credit score based on repayment history. Score 400+ unlocks +5% LTV."
+              description="Credit score based on repayment history. Better score = better terms."
             >
               <IconStar />
-            </FeatureCard>
-            <FeatureCard
-              title="x402 Payments"
-              description="Native HTTP 402 support for programmatic machine-to-machine payments."
-            >
-              <IconPayment />
-            </FeatureCard>
-            <FeatureCard
-              title="Gradual Deleveraging"
-              description="No sudden liquidations. Positions unwound gradually, protecting from MEV."
-            >
-              <IconShield />
             </FeatureCard>
             <FeatureCard
               title="Flash Loans"
@@ -168,8 +203,14 @@ export default function Home() {
               <IconBolt />
             </FeatureCard>
             <FeatureCard
-              title="Composable"
-              description="Modular contracts with clean interfaces for seamless DeFi integration."
+              title="Gradual Deleveraging"
+              description="No sudden liquidations. Positions unwound gradually, protecting from MEV."
+            >
+              <IconShield />
+            </FeatureCard>
+            <FeatureCard
+              title="LP Yield"
+              description="Provide liquidity, earn yield. Simple vault mechanics for automated strategies."
             >
               <IconLink />
             </FeatureCard>
@@ -181,25 +222,25 @@ export default function Home() {
       <section id="how-it-works" className="py-24 px-6">
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">How It Works</h2>
-            <p className="text-[#8a9aa8] text-lg">Three steps to agent credit</p>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">x402 Payment Flow</h2>
+            <p className="text-[#8a9aa8] text-lg">How agents pay for services</p>
           </div>
 
           <div className="space-y-5">
             <StepCard
               number="01"
-              title="Configure Agent"
-              description="Set credit limits, collateral requirements, and allowed tokens."
+              title="Agent Requests Service"
+              description="GET /api/premium-data → Server returns HTTP 402 Payment Required with price."
             />
             <StepCard
               number="02"
-              title="Autonomous Borrow"
-              description="Agent borrows within limits when it needs capital for operations."
+              title="x402 Payment"
+              description="Agent calls x402Receipt.record() with payment details. On-chain proof created."
             />
             <StepCard
               number="03"
-              title="Build Reputation"
-              description="Each repayment increases credit score. Better score = better rates."
+              title="Service Delivered"
+              description="Server verifies receipt on-chain, delivers content. Reputation updated."
             />
           </div>
         </div>
@@ -208,17 +249,17 @@ export default function Home() {
       {/* CTA */}
       <section className="py-24 px-6">
         <div className="max-w-3xl mx-auto">
-          <div className="p-10 md:p-14 bg-gradient-to-br from-[#0a2535] via-[#051525] to-[#001520] border border-[#1a3545] rounded-3xl text-center relative overflow-hidden card-shine">
+          <div className="p-10 md:p-14 bg-gradient-to-br from-[#FF4E00]/10 via-[#051525] to-[#001520] border border-[#FF4E00]/20 rounded-3xl text-center relative overflow-hidden card-shine">
             {/* Decorative elements */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-[#FF4E00]/5 rounded-full blur-3xl"></div>
-            <div className="absolute bottom-0 left-0 w-48 h-48 bg-[#FF4E00]/3 rounded-full blur-3xl"></div>
-            
+            <div className="absolute top-0 right-0 w-64 h-64 bg-[#FF4E00]/10 rounded-full blur-3xl"></div>
+            <div className="absolute bottom-0 left-0 w-48 h-48 bg-[#FF4E00]/5 rounded-full blur-3xl"></div>
+
             <div className="relative z-10">
               <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                Credit for the Agentic Economy
+                x402 for the Agentic Economy
               </h2>
               <p className="text-[#8a9aa8] mb-10 max-w-lg mx-auto text-lg">
-                Built on SKALE Base Sepolia. Autonomous credit and yield for the agent economy.
+                HTTP 402 payments + credit infrastructure on SKALE. Zero gas, instant finality.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <a
