@@ -1,6 +1,8 @@
-# Legasi — x402 Hackathon
+# Legasi — Agentic Commerce
 
 **x402 Payment Protocol + Credit Infrastructure for AI Agents on SKALE.**
+
+> 🛒 **Agentic Commerce**: AI agents buying, selling, and paying for services — autonomously.
 
 🌐 **Live Demo:** https://evm.legasi.io
 

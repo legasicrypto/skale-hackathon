@@ -43,20 +43,20 @@ export default function Home() {
           {/* Badge */}
           <div className="inline-flex items-center gap-2 h-8 px-4 bg-[#FF4E00]/10 border border-[#FF4E00]/30 rounded-full text-xs text-[#FF4E00] mb-8 backdrop-blur-sm animate-fade-in-up font-medium">
             <span className="text-sm">⚡</span>
-            x402 Hackathon
+            x402 Hackathon — Agentic Commerce
           </div>
 
           <h1 className="text-5xl md:text-7xl font-bold tracking-tight leading-[1.1] mb-6 animate-fade-in-up animate-delay-100">
-            <span className="gradient-text">x402</span> Payment Rails
+            <span className="gradient-text">Agentic Commerce</span>
             <br />
-            for AI Agents
+            Powered by x402
           </h1>
 
           <p className="text-lg md:text-xl text-[#8a9aa8] max-w-2xl mx-auto mb-4 leading-relaxed animate-fade-in-up animate-delay-200">
-            HTTP 402 native payments + credit infrastructure on SKALE.
+            AI agents buying, selling, and paying for services — autonomously.
           </p>
           <p className="text-sm text-[#6a7a88] max-w-2xl mx-auto mb-10 animate-fade-in-up animate-delay-200">
-            Agents pay for services, borrow capital, and build on-chain reputation — all through x402.
+            x402 payments + credit lines + on-chain reputation. The commerce layer for the agentic economy.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up animate-delay-300">
@@ -134,12 +134,12 @@ export default function Home() {
             <div className="absolute top-0 right-0 w-64 h-64 bg-[#FF4E00]/5 rounded-full blur-3xl"></div>
             <div className="relative z-10">
               <div className="inline-flex items-center gap-2 h-7 px-3 bg-[#FF4E00]/20 border border-[#FF4E00]/30 rounded-full text-xs text-[#FF4E00] mb-6 font-medium">
-                ⚡ Core Protocol
+                🛒 Agentic Commerce
               </div>
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">x402 Payment Protocol</h2>
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">x402: The Commerce Protocol</h2>
               <p className="text-lg text-[#8a9aa8] mb-6 max-w-2xl">
-                HTTP 402 "Payment Required" — finally implemented for the agentic economy. 
-                Agents pay for premium APIs, services, and data with on-chain receipts.
+                HTTP 402 "Payment Required" — the missing piece for agentic commerce.
+                Agents discover services, negotiate prices, pay, and receive goods — all programmatically.
               </p>
               <div className="grid md:grid-cols-3 gap-4 mb-8">
                 <div className="p-4 bg-[#001520]/60 rounded-xl">
@@ -256,10 +256,10 @@ export default function Home() {
 
             <div className="relative z-10">
               <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                x402 for the Agentic Economy
+                Build Agentic Commerce
               </h2>
               <p className="text-[#8a9aa8] mb-10 max-w-lg mx-auto text-lg">
-                HTTP 402 payments + credit infrastructure on SKALE. Zero gas, instant finality.
+                x402 payments + credit + reputation. The full stack for agents that buy and sell.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <a
