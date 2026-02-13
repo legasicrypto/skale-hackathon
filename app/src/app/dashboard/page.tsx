@@ -206,6 +206,7 @@ function Dashboard() {
     autoRepay: false,
     x402Enabled: false,
   });
+  const [positionInitialized, setPositionInitialized] = useState(false);
 
   useEffect(() => {
     if (!agentCfgData) return;
@@ -303,11 +304,14 @@ function Dashboard() {
   };
 
   const ensurePosition = async () => {
+    if (positionInitialized) return;
     try {
       const hash = await writeContractAsync({ address: lending, abi: lendingAbi, functionName: "initializePosition" });
       if (publicClient) await publicClient.waitForTransactionReceipt({ hash });
     } catch (e) {
       // ignore "exists" errors
+    } finally {
+      setPositionInitialized(true);
     }
   };
 
@@ -516,15 +520,14 @@ function Dashboard() {
                           <input type="number" placeholder="0.00" value={repayAmount} onChange={(e) => setRepayAmount(e.target.value)} className="w-full h-14 bg-[#001520] border border-[#0a2535] rounded-xl px-4 pr-20 text-white placeholder-[#3a4a58] focus:outline-none focus:border-[#4ade80] transition-all" />
                           <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6a7a88] text-sm font-medium">USDC.e</span>
                         </div>
-                        <button onClick={() => safeTx(() => {
-                          if (!requireAddress(lending, "Lending") || !requireAddress(usdc, "USDC")) return;
-                          return writeContractAsync({ address: usdc, abi: erc20Abi, functionName: "approve", args: [lending, toUSDC(repayAmount)] });
-                        }, "Approve repay")}
-                          disabled={!repayAmount}
-                          className="h-14 px-4 bg-[#0a2535] hover:bg-[#1a3545] text-[#4ade80] font-medium rounded-xl transition-all">Approve</button>
+                        <div className="h-14 px-4 flex items-center text-xs text-[#6a7a88]">Auto‑approve included</div>
                         <button onClick={() => safeTx(async () => {
                           if (!requireAddress(lending, "Lending") || !requireAddress(usdc, "USDC")) return;
                           await ensurePosition();
+                          const approveHash = await writeContractAsync({ address: usdc, abi: erc20Abi, functionName: "approve", args: [lending, toUSDC(repayAmount)] });
+                          if (publicClient) {
+                            await publicClient.waitForTransactionReceipt({ hash: approveHash });
+                          }
                           return writeContractAsync({ address: lending, abi: lendingAbi, functionName: "repay", args: [usdc, toUSDC(repayAmount), toUSDC(repayAmount)] });
                         }, "Repay")}
                           disabled={!repayAmount}
