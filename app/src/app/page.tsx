@@ -42,21 +42,23 @@ export default function Home() {
         <div className="max-w-4xl mx-auto text-center relative z-10">
           {/* Badge */}
           <div className="inline-flex items-center gap-2 h-8 px-4 bg-[#FF4E00]/10 border border-[#FF4E00]/30 rounded-full text-xs text-[#FF4E00] mb-8 backdrop-blur-sm animate-fade-in-up font-medium">
-            <span className="text-sm">⚡</span>
-            x402 Hackathon — Agentic Commerce
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            x402 Hackathon
           </div>
 
           <h1 className="text-5xl md:text-7xl font-bold tracking-tight leading-[1.1] mb-6 animate-fade-in-up animate-delay-100">
-            <span className="gradient-text">Agentic Commerce</span>
+            Credit Lines
             <br />
-            Powered by x402
+            <span className="gradient-text">for AI Agents</span>
           </h1>
 
           <p className="text-lg md:text-xl text-[#8a9aa8] max-w-2xl mx-auto mb-4 leading-relaxed animate-fade-in-up animate-delay-200">
-            AI agents buying, selling, and paying for services — autonomously.
+            Agents borrow USDC, pay for services via x402, and build on-chain reputation.
           </p>
           <p className="text-sm text-[#6a7a88] max-w-2xl mx-auto mb-10 animate-fade-in-up animate-delay-200">
-            x402 payments + credit lines + on-chain reputation. The commerce layer for the agentic economy.
+            The financial infrastructure for agentic commerce. Collateral → Credit → Payments → Reputation.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up animate-delay-300">
@@ -134,28 +136,42 @@ export default function Home() {
             <div className="absolute top-0 right-0 w-64 h-64 bg-[#FF4E00]/5 rounded-full blur-3xl"></div>
             <div className="relative z-10">
               <div className="inline-flex items-center gap-2 h-7 px-3 bg-[#FF4E00]/20 border border-[#FF4E00]/30 rounded-full text-xs text-[#FF4E00] mb-6 font-medium">
-                🛒 Agentic Commerce
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z" />
+                </svg>
+                x402 Payments
               </div>
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">x402: The Commerce Protocol</h2>
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">How Agents Pay for Services</h2>
               <p className="text-lg text-[#8a9aa8] mb-6 max-w-2xl">
-                HTTP 402 "Payment Required" — the missing piece for agentic commerce.
-                Agents discover services, negotiate prices, pay, and receive goods — all programmatically.
+                HTTP 402 "Payment Required" — agents use their credit lines to pay for APIs, data, and services on-chain.
               </p>
               <div className="grid md:grid-cols-3 gap-4 mb-8">
                 <div className="p-4 bg-[#001520]/60 rounded-xl">
-                  <div className="text-2xl mb-2">🤖</div>
-                  <div className="text-sm font-medium mb-1">Agent → Service</div>
-                  <div className="text-xs text-[#6a7a88]">Agent requests premium endpoint</div>
+                  <div className="w-10 h-10 rounded-lg bg-[#FF4E00]/10 flex items-center justify-center mb-3">
+                    <svg className="w-5 h-5 text-[#FF4E00]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
+                    </svg>
+                  </div>
+                  <div className="text-sm font-medium mb-1">Agent Requests</div>
+                  <div className="text-xs text-[#6a7a88]">GET /api/data → HTTP 402</div>
                 </div>
                 <div className="p-4 bg-[#001520]/60 rounded-xl">
-                  <div className="text-2xl mb-2">💸</div>
-                  <div className="text-sm font-medium mb-1">402 → Pay</div>
-                  <div className="text-xs text-[#6a7a88]">Server returns payment request</div>
+                  <div className="w-10 h-10 rounded-lg bg-[#FF4E00]/10 flex items-center justify-center mb-3">
+                    <svg className="w-5 h-5 text-[#FF4E00]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z" />
+                    </svg>
+                  </div>
+                  <div className="text-sm font-medium mb-1">Pays via Credit</div>
+                  <div className="text-xs text-[#6a7a88]">Uses borrowed USDC</div>
                 </div>
                 <div className="p-4 bg-[#001520]/60 rounded-xl">
-                  <div className="text-2xl mb-2">✅</div>
-                  <div className="text-sm font-medium mb-1">Receipt → Access</div>
-                  <div className="text-xs text-[#6a7a88]">On-chain proof unlocks content</div>
+                  <div className="w-10 h-10 rounded-lg bg-[#4ade80]/10 flex items-center justify-center mb-3">
+                    <svg className="w-5 h-5 text-[#4ade80]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div className="text-sm font-medium mb-1">Gets Access</div>
+                  <div className="text-xs text-[#6a7a88]">On-chain receipt verified</div>
                 </div>
               </div>
               <div className="font-mono text-sm bg-[#000a10] p-4 rounded-xl border border-[#0a2535]">
@@ -173,8 +189,8 @@ export default function Home() {
         <div className="absolute inset-0 bg-grid opacity-50"></div>
         <div className="max-w-5xl mx-auto relative z-10">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Complete Agent Infrastructure</h2>
-            <p className="text-[#8a9aa8] text-lg">x402 payments backed by credit, yield, and reputation</p>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Full Credit Stack for Agents</h2>
+            <p className="text-[#8a9aa8] text-lg">Collateral → Borrow → Pay → Build reputation → Better rates</p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
