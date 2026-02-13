@@ -458,6 +458,10 @@ function Dashboard() {
                           if (!requireAddress(lending, "Lending")) return;
                           if (!requireAddress(collateralToken, depositAsset)) return;
                           await ensurePosition();
+                          const approveHash = await writeContractAsync({ address: collateralToken, abi: erc20Abi, functionName: "approve", args: [lending, collateralAmountToUnits(depositAmount)] });
+                          if (publicClient) {
+                            await publicClient.waitForTransactionReceipt({ hash: approveHash });
+                          }
                           return writeContractAsync({ address: lending, abi: lendingAbi, functionName: "deposit", args: [collateralToken, collateralAmountToUnits(depositAmount)] });
                         }, "Supply")}
                           disabled={!depositAmount}
