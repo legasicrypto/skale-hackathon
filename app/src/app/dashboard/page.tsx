@@ -550,20 +550,16 @@ function Dashboard() {
                         </div>
                         <div className="h-14 px-4 flex items-center text-xs text-[#6a7a88]">Auto‑approve included</div>
                         <button onClick={() => safeTx(async () => {
-                          if (!requireAddress(lending, "Lending") || !requireAddress(usdc, "USDC")) return;
-                          if (Number(repayAmount) > borrowedAmountUSDC) {
-                            showToast("Repay amount exceeds borrowed", "error");
+                          if (!lending || !usdc) {
+                            showToast("Contract addresses missing", "error");
                             return;
                           }
-                          if (Number(repayAmount) > usdcBalance) {
-                            showToast("Insufficient USDC balance", "error");
-                            return;
-                          }
-                          const approveHash = await writeContractAsync({ address: usdc, abi: erc20Abi, functionName: "approve", args: [lending, toUSDC(repayAmount)] });
+                          const amt = toUSDC(repayAmount);
+                          const approveHash = await writeContractAsync({ address: usdc, abi: erc20Abi, functionName: "approve", args: [lending, amt] });
                           if (publicClient) {
                             await publicClient.waitForTransactionReceipt({ hash: approveHash });
                           }
-                          return writeContractAsync({ address: lending, abi: lendingAbi, functionName: "repay", args: [usdc, toUSDC(repayAmount), toUSDC(repayAmount)] });
+                          return writeContractAsync({ address: lending, abi: lendingAbi, functionName: "repay", args: [usdc, amt, amt] });
                         }, "Repay")}
                           disabled={!repayAmount}
                           className="h-14 px-8 bg-[#4ade80] hover:bg-[#22c55e] text-black font-semibold rounded-xl transition-all hover:scale-105 disabled:bg-[#0a2535] disabled:text-[#3a4a58] disabled:hover:scale-100">Repay</button>
