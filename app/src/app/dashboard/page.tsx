@@ -469,13 +469,11 @@ function Dashboard() {
                         </div>
                         <div className="h-14 px-4 flex items-center text-xs text-[#6a7a88]">Auto‑approve included</div>
                         <button onClick={() => safeTx(async () => {
-                          if (!requireAddress(lending, "Lending")) return;
-                          if (!requireAddress(collateralToken, depositAsset)) return;
-                          const approveHash = await writeContractAsync({ address: collateralToken, abi: erc20Abi, functionName: "approve", args: [lending, collateralAmountToUnits(depositAmount)] });
-                          if (publicClient) {
-                            await publicClient.waitForTransactionReceipt({ hash: approveHash });
-                          }
-                          return writeContractAsync({ address: lending, abi: lendingAbi, functionName: "deposit", args: [collateralToken, collateralAmountToUnits(depositAmount)] });
+                          const token = depositAsset === "WETH" ? weth : wbtc;
+                          const amt = collateralAmountToUnits(depositAmount);
+                          const approveHash = await writeContractAsync({ address: token, abi: erc20Abi, functionName: "approve", args: [lending, amt] });
+                          if (publicClient) await publicClient.waitForTransactionReceipt({ hash: approveHash });
+                          return writeContractAsync({ address: lending, abi: lendingAbi, functionName: "deposit", args: [token, amt] });
                         }, "Supply")}
                           disabled={!depositAmount}
                           className="h-14 px-8 bg-[#FF4E00] hover:bg-[#E64500] text-white font-semibold rounded-xl transition-all hover:scale-105 disabled:bg-[#0a2535] disabled:text-[#3a4a58] disabled:hover:scale-100">
@@ -505,15 +503,6 @@ function Dashboard() {
                         </div>
                         <button onClick={() => setBorrowAmount(maxBorrow.toFixed(2))} className="h-14 px-4 bg-[#0a2535] hover:bg-[#1a3545] text-[#FF4E00] font-medium rounded-xl transition-all">MAX</button>
                         <button onClick={() => safeTx(async () => {
-                          if (!requireAddress(lending, "Lending")) return;
-                          if (Number(borrowAmount) > poolLiquidity) {
-                            showToast("Pool has insufficient liquidity. Seed pool first.", "error");
-                            return;
-                          }
-                          if (Number(borrowAmount) > maxBorrow) {
-                            showToast("Exceeds your borrow limit (LTV). Supply more collateral.", "error");
-                            return;
-                          }
                           return writeContractAsync({ address: lending, abi: lendingAbi, functionName: "borrow", args: [usdc, toUSDC(borrowAmount)] });
                         }, "Borrow")}
                           disabled={!borrowAmount}
@@ -550,15 +539,9 @@ function Dashboard() {
                         </div>
                         <div className="h-14 px-4 flex items-center text-xs text-[#6a7a88]">Auto‑approve included</div>
                         <button onClick={() => safeTx(async () => {
-                          if (!lending || !usdc) {
-                            showToast("Contract addresses missing", "error");
-                            return;
-                          }
                           const amt = toUSDC(repayAmount);
                           const approveHash = await writeContractAsync({ address: usdc, abi: erc20Abi, functionName: "approve", args: [lending, amt] });
-                          if (publicClient) {
-                            await publicClient.waitForTransactionReceipt({ hash: approveHash });
-                          }
+                          if (publicClient) await publicClient.waitForTransactionReceipt({ hash: approveHash });
                           return writeContractAsync({ address: lending, abi: lendingAbi, functionName: "repay", args: [usdc, amt, amt] });
                         }, "Repay")}
                           disabled={!repayAmount}
@@ -585,19 +568,6 @@ function Dashboard() {
                         <button onClick={() => setWithdrawAmount((withdrawAsset === "WETH" ? collateralAmountWETH : collateralAmountWBTC).toString())} className="h-14 px-4 bg-[#0a2535] hover:bg-[#1a3545] text-[#FF4E00] font-medium rounded-xl transition-all">MAX</button>
                         <button onClick={() => safeTx(async () => {
                           const token = withdrawAsset === "WETH" ? weth : wbtc;
-                          if (!requireAddress(lending, "Lending") || !requireAddress(token, withdrawAsset)) return;
-                          const depositedAmount = withdrawAsset === "WETH" ? collateralAmountWETH : collateralAmountWBTC;
-                          if (Number(withdrawAmount) > depositedAmount) {
-                            showToast(`Insufficient ${withdrawAsset} deposited`, "error");
-                            return;
-                          }
-                          const withdrawValue = Number(withdrawAmount) * (withdrawAsset === "WETH" ? priceWethUsd : priceWbtcUsd);
-                          const remainingCollateralValue = collateralValue - withdrawValue;
-                          const minRequired = borrowedValue * 100 / maxLTV;
-                          if (borrowedValue > 0 && remainingCollateralValue < minRequired) {
-                            showToast(`Would breach LTV. Repay debt first.`, "error");
-                            return;
-                          }
                           return writeContractAsync({ address: lending, abi: lendingAbi, functionName: "withdraw", args: [token, withdrawAmountToUnits(withdrawAmount)] });
                         }, "Withdraw")}
                         disabled={!withdrawAmount}
