@@ -79,6 +79,23 @@ contract LegasiLending {
 
     function repay(address token, uint256 amount, uint256 amountUsd6) external {
         IERC20(token).transferFrom(msg.sender, address(this), amount);
+        
+        // Reduce borrowed amount
+        Position storage p = positions[msg.sender];
+        uint256 remaining = amount;
+        for (uint256 i = 0; i < p.borrows.length && remaining > 0; i++) {
+            if (p.borrows[i].token != token) continue;
+            uint256 bal = p.borrows[i].amount;
+            if (bal == 0) continue;
+            if (bal > remaining) {
+                p.borrows[i].amount = bal - remaining;
+                remaining = 0;
+            } else {
+                remaining -= bal;
+                p.borrows[i].amount = 0;
+            }
+        }
+        
         reputation.updateOnRepay(msg.sender, amountUsd6);
         emit Repaid(msg.sender, token, amount);
     }
