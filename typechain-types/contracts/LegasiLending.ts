@@ -23,6 +23,47 @@ import type {
   TypedContractMethod,
 } from "../common";
 
+export declare namespace LegasiLending {
+  export type BorrowedAmountStruct = {
+    token: AddressLike;
+    amount: BigNumberish;
+  };
+
+  export type BorrowedAmountStructOutput = [token: string, amount: bigint] & {
+    token: string;
+    amount: bigint;
+  };
+
+  export type CollateralDepositStruct = {
+    token: AddressLike;
+    amount: BigNumberish;
+  };
+
+  export type CollateralDepositStructOutput = [
+    token: string,
+    amount: bigint
+  ] & { token: string; amount: bigint };
+
+  export type PositionStruct = {
+    owner: AddressLike;
+    collaterals: LegasiLending.CollateralDepositStruct[];
+    borrows: LegasiLending.BorrowedAmountStruct[];
+    lastUpdate: BigNumberish;
+  };
+
+  export type PositionStructOutput = [
+    owner: string,
+    collaterals: LegasiLending.CollateralDepositStructOutput[],
+    borrows: LegasiLending.BorrowedAmountStructOutput[],
+    lastUpdate: bigint
+  ] & {
+    owner: string;
+    collaterals: LegasiLending.CollateralDepositStructOutput[];
+    borrows: LegasiLending.BorrowedAmountStructOutput[];
+    lastUpdate: bigint;
+  };
+}
+
 export interface LegasiLendingInterface extends Interface {
   getFunction(
     nameOrSignature:
@@ -31,10 +72,16 @@ export interface LegasiLendingInterface extends Interface {
       | "configureAgent"
       | "core"
       | "deposit"
+      | "getBorrows"
+      | "getCollaterals"
+      | "getPosition"
       | "initializePosition"
       | "positions"
       | "repay"
       | "reputation"
+      | "totalBorrowOf"
+      | "totalCollateralOf"
+      | "withdraw"
   ): FunctionFragment;
 
   getEvent(
@@ -63,6 +110,18 @@ export interface LegasiLendingInterface extends Interface {
     values: [AddressLike, BigNumberish]
   ): string;
   encodeFunctionData(
+    functionFragment: "getBorrows",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getCollaterals",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getPosition",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "initializePosition",
     values?: undefined
   ): string;
@@ -78,6 +137,18 @@ export interface LegasiLendingInterface extends Interface {
     functionFragment: "reputation",
     values?: undefined
   ): string;
+  encodeFunctionData(
+    functionFragment: "totalBorrowOf",
+    values: [AddressLike, AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "totalCollateralOf",
+    values: [AddressLike, AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "withdraw",
+    values: [AddressLike, BigNumberish]
+  ): string;
 
   decodeFunctionResult(
     functionFragment: "agentConfigs",
@@ -90,6 +161,15 @@ export interface LegasiLendingInterface extends Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "core", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "deposit", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "getBorrows", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getCollaterals",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getPosition",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "initializePosition",
     data: BytesLike
@@ -97,6 +177,15 @@ export interface LegasiLendingInterface extends Interface {
   decodeFunctionResult(functionFragment: "positions", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "repay", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "reputation", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "totalBorrowOf",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "totalCollateralOf",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
 }
 
 export namespace BorrowedEvent {
@@ -242,6 +331,24 @@ export interface LegasiLending extends BaseContract {
     "nonpayable"
   >;
 
+  getBorrows: TypedContractMethod<
+    [owner: AddressLike],
+    [LegasiLending.BorrowedAmountStructOutput[]],
+    "view"
+  >;
+
+  getCollaterals: TypedContractMethod<
+    [owner: AddressLike],
+    [LegasiLending.CollateralDepositStructOutput[]],
+    "view"
+  >;
+
+  getPosition: TypedContractMethod<
+    [owner: AddressLike],
+    [LegasiLending.PositionStructOutput],
+    "view"
+  >;
+
   initializePosition: TypedContractMethod<[], [void], "nonpayable">;
 
   positions: TypedContractMethod<
@@ -257,6 +364,24 @@ export interface LegasiLending extends BaseContract {
   >;
 
   reputation: TypedContractMethod<[], [string], "view">;
+
+  totalBorrowOf: TypedContractMethod<
+    [owner: AddressLike, token: AddressLike],
+    [bigint],
+    "view"
+  >;
+
+  totalCollateralOf: TypedContractMethod<
+    [owner: AddressLike, token: AddressLike],
+    [bigint],
+    "view"
+  >;
+
+  withdraw: TypedContractMethod<
+    [token: AddressLike, amount: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
 
   getFunction<T extends ContractMethod = ContractMethod>(
     key: string | FunctionFragment
@@ -302,6 +427,27 @@ export interface LegasiLending extends BaseContract {
     "nonpayable"
   >;
   getFunction(
+    nameOrSignature: "getBorrows"
+  ): TypedContractMethod<
+    [owner: AddressLike],
+    [LegasiLending.BorrowedAmountStructOutput[]],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "getCollaterals"
+  ): TypedContractMethod<
+    [owner: AddressLike],
+    [LegasiLending.CollateralDepositStructOutput[]],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "getPosition"
+  ): TypedContractMethod<
+    [owner: AddressLike],
+    [LegasiLending.PositionStructOutput],
+    "view"
+  >;
+  getFunction(
     nameOrSignature: "initializePosition"
   ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
@@ -321,6 +467,27 @@ export interface LegasiLending extends BaseContract {
   getFunction(
     nameOrSignature: "reputation"
   ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "totalBorrowOf"
+  ): TypedContractMethod<
+    [owner: AddressLike, token: AddressLike],
+    [bigint],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "totalCollateralOf"
+  ): TypedContractMethod<
+    [owner: AddressLike, token: AddressLike],
+    [bigint],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "withdraw"
+  ): TypedContractMethod<
+    [token: AddressLike, amount: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
 
   getEvent(
     key: "Borrowed"

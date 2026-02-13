@@ -42,3 +42,4 @@ next-env.d.ts
 
 # waitlist data
 /data/
+.env*.local

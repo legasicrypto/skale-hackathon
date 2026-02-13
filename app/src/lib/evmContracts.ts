@@ -7,4 +7,5 @@ export const CONTRACTS = {
   x402: process.env.NEXT_PUBLIC_X402,
   usdc: process.env.NEXT_PUBLIC_USDC,
   wbtc: process.env.NEXT_PUBLIC_WBTC,
+  weth: process.env.NEXT_PUBLIC_WETH,
 };

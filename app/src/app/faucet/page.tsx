@@ -44,6 +44,9 @@ export default function FaucetPage() {
       <div className="max-w-2xl mx-auto">
         <h1 className="text-3xl font-bold">Faucet</h1>
         <p className="mt-2 text-[#8a9aa8]">Mint test tokens for demo.</p>
+        <div className="mt-4 p-3 bg-[#FF4E00]/10 border border-[#FF4E00]/30 rounded-xl text-sm text-[#FF4E00]">
+          ⚠️ If contracts were redeployed, your old tokens are invalid. Mint fresh tokens here.
+        </div>
 
         <div className="mt-6 flex items-center gap-3">
           {!isConnected ? (
@@ -80,6 +83,26 @@ export default function FaucetPage() {
               <button className="h-12 px-5 bg-[#4ade80] hover:bg-[#22c55e] text-black rounded-xl font-semibold" disabled={!isConnected} onClick={() => mint(usdc, usdcAmount, 6, "USDC")}>Mint USDC</button>
             </div>
           </div>
+        </div>
+
+        <div className="mt-6">
+          <button 
+            className="w-full h-14 bg-gradient-to-r from-[#FF4E00] to-[#FF7E00] hover:from-[#E64500] hover:to-[#E67400] text-white rounded-xl font-bold text-lg transition-all hover:scale-[1.02]" 
+            disabled={!isConnected}
+            onClick={async () => {
+              setStatus("Minting all tokens...");
+              try {
+                await mint(weth, wethAmount, 6, "WETH");
+                await mint(wbtc, wbtcAmount, 8, "WBTC");
+                await mint(usdc, usdcAmount, 6, "USDC");
+                setStatus("All tokens minted ✓");
+              } catch {
+                setStatus("Some mints failed");
+              }
+            }}
+          >
+            🚀 Mint All Tokens
+          </button>
         </div>
 
         {status && <div className="mt-4 text-sm text-[#8a9aa8]">{status}</div>}

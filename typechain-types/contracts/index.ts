@@ -6,5 +6,6 @@ export type { legasiLpSol };
 export type { LegasiCore } from "./LegasiCore";
 export type { LegasiGAD } from "./LegasiGAD";
 export type { LegasiLending } from "./LegasiLending";
+export type { MockERC20 } from "./MockERC20";
 export type { ReputationRegistry } from "./ReputationRegistry";
 export type { X402Receipt } from "./X402Receipt";

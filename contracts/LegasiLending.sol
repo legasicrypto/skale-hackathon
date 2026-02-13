@@ -82,4 +82,54 @@ contract LegasiLending {
         reputation.updateOnRepay(msg.sender, amountUsd6);
         emit Repaid(msg.sender, token, amount);
     }
+
+    function withdraw(address token, uint256 amount) external {
+        require(amount > 0, "amount");
+        Position storage p = positions[msg.sender];
+        uint256 remaining = amount;
+        for (uint256 i = 0; i < p.collaterals.length && remaining > 0; i++) {
+            if (p.collaterals[i].token != token) continue;
+            uint256 bal = p.collaterals[i].amount;
+            if (bal == 0) continue;
+            if (bal > remaining) {
+                p.collaterals[i].amount = bal - remaining;
+                remaining = 0;
+            } else {
+                remaining -= bal;
+                p.collaterals[i].amount = 0;
+            }
+        }
+        require(remaining == 0, "insufficient");
+        IERC20(token).transfer(msg.sender, amount);
+    }
+
+    function getPosition(address owner) external view returns (Position memory) {
+        return positions[owner];
+    }
+
+    function getCollaterals(address owner) external view returns (CollateralDeposit[] memory) {
+        return positions[owner].collaterals;
+    }
+
+    function getBorrows(address owner) external view returns (BorrowedAmount[] memory) {
+        return positions[owner].borrows;
+    }
+
+    function totalCollateralOf(address owner, address token) external view returns (uint256) {
+        Position storage p = positions[owner];
+        uint256 total;
+        for (uint256 i = 0; i < p.collaterals.length; i++) {
+            if (p.collaterals[i].token == token) total += p.collaterals[i].amount;
+        }
+        return total;
+    }
+
+    function totalBorrowOf(address owner, address token) external view returns (uint256) {
+        Position storage p = positions[owner];
+        uint256 total;
+        for (uint256 i = 0; i < p.borrows.length; i++) {
+            if (p.borrows[i].token == token) total += p.borrows[i].amount;
+        }
+        return total;
+    }
 }

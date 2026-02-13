@@ -565,18 +565,32 @@ function Dashboard() {
                           <input type="number" placeholder="0.00" value={withdrawAmount} onChange={(e) => setWithdrawAmount(e.target.value)} className="w-full h-14 bg-[#001520] border border-[#0a2535] rounded-xl px-4 pr-20 text-white placeholder-[#3a4a58] focus:outline-none focus:border-[#FF4E00] transition-all" />
                           <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6a7a88] text-sm font-medium">{withdrawAsset}</span>
                         </div>
+                        <button onClick={() => setWithdrawAmount((withdrawAsset === "WETH" ? collateralAmountWETH : collateralAmountWBTC).toString())} className="h-14 px-4 bg-[#0a2535] hover:bg-[#1a3545] text-[#FF4E00] font-medium rounded-xl transition-all">MAX</button>
                         <button onClick={() => safeTx(async () => {
                           const token = withdrawAsset === "WETH" ? weth : wbtc;
                           if (!requireAddress(lending, "Lending") || !requireAddress(token, withdrawAsset)) return;
+                          const depositedAmount = withdrawAsset === "WETH" ? collateralAmountWETH : collateralAmountWBTC;
+                          if (Number(withdrawAmount) > depositedAmount) {
+                            showToast(`Insufficient ${withdrawAsset} deposited`, "error");
+                            return;
+                          }
+                          const withdrawValue = Number(withdrawAmount) * (withdrawAsset === "WETH" ? priceWethUsd : priceWbtcUsd);
+                          const remainingCollateralValue = collateralValue - withdrawValue;
+                          const minRequired = borrowedValue * 100 / maxLTV;
+                          if (borrowedValue > 0 && remainingCollateralValue < minRequired) {
+                            showToast(`Would breach LTV. Repay debt first.`, "error");
+                            return;
+                          }
                           await writeContractAsync({ address: lending, abi: lendingAbi, functionName: "withdraw", args: [token, withdrawAmountToUnits(withdrawAmount)] });
                         }, "Withdraw")}
                         disabled={!withdrawAmount}
                         className="h-14 px-8 bg-[#FF4E00] hover:bg-[#E64500] text-white font-semibold rounded-xl transition-all hover:scale-105 disabled:bg-[#0a2535] disabled:text-[#3a4a58] disabled:hover:scale-100">Withdraw</button>
                       </div>
                       <div className="p-4 bg-[#001520]/50 rounded-xl space-y-2">
+                        <div className="flex justify-between text-sm"><span className="text-[#6a7a88]">Deposited {withdrawAsset}</span><span className="text-white font-semibold">{(withdrawAsset === "WETH" ? collateralAmountWETH : collateralAmountWBTC).toFixed(withdrawAsset === "WETH" ? 6 : 8)}</span></div>
                         <div className="flex justify-between text-sm"><span className="text-[#6a7a88]">Total collateral value</span><span className="text-white font-semibold">${collateralValue.toFixed(2)}</span></div>
                         {borrowedValue > 0 && (
-                          <div className="flex justify-between text-sm"><span className="text-[#6a7a88]">Max withdrawable</span><span className="text-[#FF4E00] font-semibold">${maxWithdrawValue.toFixed(2)}</span></div>
+                          <div className="flex justify-between text-sm"><span className="text-[#6a7a88]">Max withdrawable (LTV)</span><span className="text-[#FF4E00] font-semibold">${maxWithdrawValue.toFixed(2)}</span></div>
                         )}
                       </div>
                     </div>

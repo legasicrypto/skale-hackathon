@@ -30,6 +30,8 @@ export type { LegasiLP } from "./contracts/LegasiLP.sol/LegasiLP";
 export { LegasiLP__factory } from "./factories/contracts/LegasiLP.sol/LegasiLP__factory";
 export type { LpToken } from "./contracts/LegasiLP.sol/LpToken";
 export { LpToken__factory } from "./factories/contracts/LegasiLP.sol/LpToken__factory";
+export type { MockERC20 } from "./contracts/MockERC20";
+export { MockERC20__factory } from "./factories/contracts/MockERC20__factory";
 export type { ReputationRegistry } from "./contracts/ReputationRegistry";
 export { ReputationRegistry__factory } from "./factories/contracts/ReputationRegistry__factory";
 export type { X402Receipt } from "./contracts/X402Receipt";
