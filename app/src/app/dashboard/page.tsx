@@ -197,6 +197,7 @@ function Dashboard() {
   const { data: priceUSDC, refetch: refetchPriceUSDC } = useReadContract({ address: core, abi: coreAbi, functionName: "priceFeeds", args: [usdc] });
 
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const [lastTx, setLastTx] = useState<string | null>(null);
   const showToast = (message: string, type: "success" | "error" = "success") => setToast({ message, type });
 
   const [agentConfig, setAgentConfig] = useState({
@@ -320,6 +321,7 @@ function Dashboard() {
         showToast(`${label} not sent`, "error");
         return;
       }
+      setLastTx(hash);
       showToast(`${label} sent ${hash.slice(0, 6)}…${hash.slice(-4)}`, "success");
       if (publicClient) {
         await publicClient.waitForTransactionReceipt({ hash });
@@ -465,6 +467,7 @@ function Dashboard() {
                         </button>
                       </div>
                       <div className="mt-3 text-xs text-[#6a7a88]">≈ ${(parseFloat(depositAmount || "0") * (depositAsset === "WETH" ? priceWethUsd : priceWbtcUsd)).toFixed(2)} USD</div>
+                      {lastTx && <div className="mt-2 text-xs text-[#6a7a88]">Last tx: {lastTx}</div>}
                     </div>
                   )}
 
