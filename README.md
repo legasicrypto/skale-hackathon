@@ -1,96 +1,245 @@
-# Legasi – SKALE Hackathon
+# Legasi — SKALE Hackathon
 
-Agentic credit and yield infrastructure deployed on **SKALE Base Sepolia**.
+**Agentic credit and yield infrastructure on SKALE Base Sepolia.**
 
-## Live Demo
+🌐 **Live Demo:** https://evm.legasi.io
 
-- App: https://evm.legasi.io
+---
 
-## What this is
+## What is Legasi?
 
-Legasi brings agent-native credit rails to an EVM environment on SKALE:
+Legasi is **credit infrastructure for AI agents**. We enable autonomous systems to:
 
-- Borrow and repay against collateral
-- On-chain reputation registry (ERC-8004 style) to improve terms over time
-- Gradual Auto-Deleveraging (GAD) to reduce risk instead of hard liquidations
-- LP module to deposit and withdraw into yield, designed for automated execution
-- x402 receipts for HTTP 402 style payment flows
+- **Borrow** USDC against collateral (WETH, WBTC)
+- **Earn yield** via LP vaults
+- **Build reputation** through on-chain credit scoring
+- **Avoid liquidations** with Gradual Auto-Deleveraging (GAD)
+- **Execute flash loans** for arbitrage operations
 
-## Network
+### Why SKALE?
 
-- Chain: SKALE Base Sepolia
-- RPC: `https://base-sepolia-testnet.skalenodes.com/v1/jubilant-horrible-ancha`
+- **Zero gas UX** — Agents focus on logic, not fees
+- **Fast finality** — Sub-second confirmations for credit decisions
+- **EVM compatible** — Standard tooling (wagmi, viem, ethers)
 
-## Deployments
+---
 
-See `docs/DEPLOYMENTS.md` for the canonical list.
+## Architecture
 
-Known addresses:
-
-- Core: `0x84d9D82d528D0E1c8c9d149577cE22be7526ca91`
-- ReputationRegistry: `0xABad189F8127D24EcB98d6583e51Cc458c996Bf3`
-- Lending: `0x8a99FC7e556e9eDb5a7f791558bED198124913C1`
-- LP: `0x3a197F95EEED77CE9A6006FAaE89E5C86f3B90aB`
-- GAD: `0x0CaFA856640274edFa9E97f8E05d7b8c80327Fe4`
-- X402Receipt: `0x6810E9B16512959Fe9BAB74a8532e38450D0dA58`
-
-Tokens used in the demo:
-
-- USDC (mock): `0x8692A9d69113E1454C09c631AdE12949E5c11306`
-- WBTC (mock): `0x7787dC83291C37d349D9523D028771914679f4C5`
-- WETH (mock): `0x1eA5C029D6aea21f066D661CA7B6f5404Cd4d409`
-
-## Repo structure
-
-- `contracts/` smart contracts
-- `scripts/` deployment + helpers
-- `app/` Next.js frontend (wagmi/viem)
-- `docs/` protocol + demo documentation
-
-## Quickstart (local)
-
-```bash
-cp .env.example .env
-# fill SKALE_RPC + DEPLOYER_PK + token addresses
-npm install
-npm run build
-npm run deploy
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      Legasi Protocol                        │
+├─────────────┬─────────────┬─────────────┬──────────────────┤
+│ LegasiCore  │ Reputation  │ LegasiGAD   │ X402Receipt      │
+│ (Config)    │ (Scoring)   │ (Deleverage)│ (HTTP 402)       │
+├─────────────┴─────────────┴─────────────┴──────────────────┤
+│                     LegasiLending                           │
+│            deposit → borrow → repay → withdraw              │
+├────────────────────────────┬───────────────────────────────┤
+│        LegasiLP            │        LegasiFlash            │
+│    (Yield Vault)           │     (Flash Loans)             │
+└────────────────────────────┴───────────────────────────────┘
 ```
 
-## Frontend
+---
+
+## Deployed Contracts
+
+| Contract | Address |
+|----------|---------|
+| Core | `0x84d9D82d528D0E1c8c9d149577cE22be7526ca91` |
+| Lending | `0xB966e02Ca94bD54F6a3aB64eD05045616a712618` |
+| LP | `0x3a197F95EEED77CE9A6006FAaE89E5C86f3B90aB` |
+| GAD | `0xfC3E84409989C316500378949C6aF45dc1070b2A` |
+| Flash | `0x3BC223A9564dC6fe97168aA4B2330aa079860dc3` |
+| Reputation | `0xABad189F8127D24EcB98d6583e51Cc458c996Bf3` |
+
+See `docs/DEPLOYMENTS.md` for full details.
+
+---
+
+## Quick Start
+
+### 1. Run the Demo (60 seconds)
+
+1. Open https://evm.legasi.io
+2. Connect MetaMask on **SKALE Base Sepolia**
+3. Get test tokens via **Faucet**
+4. Supply collateral → Borrow → Repay → Withdraw
+
+### 2. Local Development
+
+```bash
+# Clone
+git clone https://github.com/legasicrypto/skale-hackathon
+cd skale-hackathon
+
+# Install
+npm install
+cd app && npm install && cd ..
+
+# Configure
+cp .env.example .env
+# Add SKALE_RPC + DEPLOYER_PK
+
+# Compile
+npx hardhat compile
+
+# Test
+npx hardhat test
+
+# Deploy
+npx hardhat run scripts/deploy-all.ts --network skale
+```
+
+### 3. Frontend
 
 ```bash
 cd app
-npm install
 npm run dev
+# Open http://localhost:3000
 ```
 
-## 5-minute demo
+---
 
-1) Open https://evm.legasi.io
-2) Connect MetaMask on **SKALE Base Sepolia**
-3) Get test tokens (USDC.e / WBTC) as described in the UI
-4) Credit: deposit collateral, borrow, repay
-5) Yield: deposit into the LP vault, then withdraw
+## Key Features
 
-## Demo flow
+### 🤖 Agent-Native Credit
 
-See `docs/DEMO_FLOW.md`.
+```typescript
+// Configure agent limits
+await lending.configureAgent(
+  5000_000000n,  // $5,000/day limit
+  true,          // Auto-repay enabled
+  true           // x402 enabled
+);
 
-## Agent flow (EVM)
+// Agent borrows autonomously within limits
+await lending.borrow(usdc, 1000_000000n);
+```
 
-See `docs/AGENT_FLOW.md` for the full register → LP → collateral → borrow → repay → withdraw flow.
+### 📊 On-Chain Reputation
 
-## Coinbase Agentic Wallet
+```solidity
+// Score increases with repayments
+function updateOnRepay(address agent, uint256 repaidUsd6) external {
+    Reputation storage r = reputations[agent];
+    r.successfulRepayments += 1;
+    r.totalRepaidUsd6 += repaidUsd6;
+    r.score = _calcScore(...);
+}
+```
 
-Authentication ready for `valentin@legasi.io` (manual login via `npx awal`).
+### 🛡️ Gradual Auto-Deleveraging (GAD)
 
-## Agent skill (EVM)
+No sudden liquidations. Positions unwind gradually:
 
-`skills/legasi-lending-evm/SKILL.md`
+```
+LTV Overshoot → GAD Rate (quadratic curve)
+5% over     → 0.25%/day liquidation
+10% over    → 1%/day liquidation  
+20% over    → 4%/day liquidation
+```
 
-## Docs
+### ⚡ Flash Loans
 
-- USDC: `docs/USDC.md`
-- Reputation (ERC-8004): `docs/REPUTATION_ERC8004.md`
-- x402 Flow: `docs/X402_FLOW.md`
+```typescript
+// 0.09% fee, same-tx repayment
+const fee = await flash.calculateFee(amount);
+await flash.flashLoan(usdc, amount, receiver, data);
+```
+
+---
+
+## Agent Integration
+
+### Coinbase Agentic Wallet
+
+We support **Coinbase Agentic Wallet** for agent authentication:
+
+```bash
+npx awal@latest status  # Check wallet
+npx awal@latest show    # Open UI
+```
+
+See `.agents/skills/` for full skill definitions.
+
+### Minimal Agent Script
+
+```typescript
+import { createWalletClient, http } from 'viem';
+import { privateKeyToAccount } from 'viem/accounts';
+
+const wallet = createWalletClient({
+  account: privateKeyToAccount('0x...'),
+  chain: skaleBaseSepolia,
+  transport: http(RPC),
+});
+
+// Deposit collateral
+await wallet.writeContract({
+  address: lending,
+  abi: lendingAbi,
+  functionName: 'deposit',
+  args: [weth, 1_000_000n], // 1 WETH
+});
+
+// Borrow USDC
+await wallet.writeContract({
+  address: lending,
+  abi: lendingAbi,
+  functionName: 'borrow',
+  args: [usdc, 500_000_000n], // 500 USDC
+});
+```
+
+See `docs/AGENT_FLOW.md` for complete examples.
+
+---
+
+## Documentation
+
+| Doc | Description |
+|-----|-------------|
+| `docs/DEPLOYMENTS.md` | Contract addresses |
+| `docs/DEMO_FLOW.md` | 5-minute demo script |
+| `docs/AGENT_FLOW.md` | Full agent integration |
+| `docs/REPUTATION_ERC8004.md` | Reputation system |
+| `docs/X402_FLOW.md` | HTTP 402 payments |
+
+---
+
+## Repo Structure
+
+```
+skale-hackathon/
+├── contracts/           # Solidity smart contracts
+│   ├── LegasiCore.sol
+│   ├── LegasiLending.sol
+│   ├── LegasiLP.sol
+│   ├── LegasiGAD.sol
+│   ├── LegasiFlash.sol
+│   ├── ReputationRegistry.sol
+│   └── X402Receipt.sol
+├── scripts/             # Deployment scripts
+├── test/                # Contract tests
+├── app/                 # Next.js frontend
+│   └── src/
+│       ├── app/         # Pages (dashboard, faucet)
+│       └── lib/         # Contract addresses
+├── docs/                # Documentation
+├── .agents/             # Coinbase Agentic Wallet skills
+└── skills/              # Legasi lending skill
+```
+
+---
+
+## Links
+
+- 🌐 **Live Demo:** https://evm.legasi.io
+- 🐦 **Twitter:** [@legasi_xyz](https://x.com/legasi_xyz)
+- 📖 **GitHub:** [legasicrypto/skale-hackathon](https://github.com/legasicrypto/skale-hackathon)
+
+---
+
+*Built for the SKALE Hackathon 2026*

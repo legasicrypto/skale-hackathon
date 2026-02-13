@@ -10,7 +10,10 @@ const PRIVATE_KEY = process.env.DEPLOYER_PK || "";
 const config: HardhatUserConfig = {
   solidity: {
     version: "0.8.20",
-    settings: { optimizer: { enabled: true, runs: 200 } }
+    settings: { 
+      optimizer: { enabled: true, runs: 200 },
+      viaIR: true
+    }
   },
   networks: {
     skale: {

@@ -169,7 +169,7 @@ export default function Home() {
             </FeatureCard>
             <FeatureCard
               title="Composable"
-              description="Clean PDAs and CPIs for seamless integration with other protocols."
+              description="Modular contracts with clean interfaces for seamless DeFi integration."
             >
               <IconLink />
             </FeatureCard>

@@ -25,52 +25,154 @@ import type {
 
 export interface LegasiGADInterface extends Interface {
   getFunction(
-    nameOrSignature: "configureGad" | "crank" | "gadConfigs"
+    nameOrSignature:
+      | "BPS_DENOMINATOR"
+      | "CRANKER_REWARD_BPS"
+      | "MAX_GAD_RATE_BPS"
+      | "MIN_CRANK_INTERVAL"
+      | "SECONDS_PER_DAY"
+      | "canCrank"
+      | "configureGad"
+      | "core"
+      | "crank"
+      | "gadConfigs"
+      | "getGadRateBps"
+      | "getGadStats"
+      | "lendingContract"
+      | "positions"
+      | "reputation"
+      | "syncPosition"
+      | "treasury"
   ): FunctionFragment;
 
   getEvent(
-    nameOrSignatureOrTopic: "GadConfigured" | "GadCranked"
+    nameOrSignatureOrTopic: "GadConfigured" | "GadExecuted"
   ): EventFragment;
 
   encodeFunctionData(
-    functionFragment: "configureGad",
-    values: [BigNumberish, BigNumberish, BigNumberish, boolean]
+    functionFragment: "BPS_DENOMINATOR",
+    values?: undefined
   ): string;
-  encodeFunctionData(functionFragment: "crank", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "CRANKER_REWARD_BPS",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "MAX_GAD_RATE_BPS",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "MIN_CRANK_INTERVAL",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "SECONDS_PER_DAY",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "canCrank",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "configureGad",
+    values: [boolean, BigNumberish]
+  ): string;
+  encodeFunctionData(functionFragment: "core", values?: undefined): string;
+  encodeFunctionData(functionFragment: "crank", values: [AddressLike]): string;
   encodeFunctionData(
     functionFragment: "gadConfigs",
     values: [AddressLike]
   ): string;
+  encodeFunctionData(
+    functionFragment: "getGadRateBps",
+    values: [BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getGadStats",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "lendingContract",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "positions",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "reputation",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "syncPosition",
+    values: [AddressLike, AddressLike, BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(functionFragment: "treasury", values?: undefined): string;
 
+  decodeFunctionResult(
+    functionFragment: "BPS_DENOMINATOR",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "CRANKER_REWARD_BPS",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "MAX_GAD_RATE_BPS",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "MIN_CRANK_INTERVAL",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "SECONDS_PER_DAY",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "canCrank", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "configureGad",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "core", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "crank", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "gadConfigs", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getGadRateBps",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getGadStats",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "lendingContract",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "positions", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "reputation", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "syncPosition",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "treasury", data: BytesLike): Result;
 }
 
 export namespace GadConfiguredEvent {
   export type InputTuple = [
     user: AddressLike,
-    startThresholdBps: BigNumberish,
-    stepBps: BigNumberish,
-    minInterval: BigNumberish,
-    enabled: boolean
+    enabled: boolean,
+    thresholdBps: BigNumberish
   ];
   export type OutputTuple = [
     user: string,
-    startThresholdBps: bigint,
-    stepBps: bigint,
-    minInterval: bigint,
-    enabled: boolean
+    enabled: boolean,
+    thresholdBps: bigint
   ];
   export interface OutputObject {
     user: string;
-    startThresholdBps: bigint;
-    stepBps: bigint;
-    minInterval: bigint;
     enabled: boolean;
+    thresholdBps: bigint;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -78,12 +180,33 @@ export namespace GadConfiguredEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
-export namespace GadCrankedEvent {
-  export type InputTuple = [user: AddressLike, timestamp: BigNumberish];
-  export type OutputTuple = [user: string, timestamp: bigint];
+export namespace GadExecutedEvent {
+  export type InputTuple = [
+    user: AddressLike,
+    collateralLiquidated: BigNumberish,
+    debtReduced: BigNumberish,
+    ltvBeforeBps: BigNumberish,
+    ltvAfterBps: BigNumberish,
+    cranker: AddressLike,
+    crankerReward: BigNumberish
+  ];
+  export type OutputTuple = [
+    user: string,
+    collateralLiquidated: bigint,
+    debtReduced: bigint,
+    ltvBeforeBps: bigint,
+    ltvAfterBps: bigint,
+    cranker: string,
+    crankerReward: bigint
+  ];
   export interface OutputObject {
     user: string;
-    timestamp: bigint;
+    collateralLiquidated: bigint;
+    debtReduced: bigint;
+    ltvBeforeBps: bigint;
+    ltvAfterBps: bigint;
+    cranker: string;
+    crankerReward: bigint;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -134,67 +257,199 @@ export interface LegasiGAD extends BaseContract {
     event?: TCEvent
   ): Promise<this>;
 
+  BPS_DENOMINATOR: TypedContractMethod<[], [bigint], "view">;
+
+  CRANKER_REWARD_BPS: TypedContractMethod<[], [bigint], "view">;
+
+  MAX_GAD_RATE_BPS: TypedContractMethod<[], [bigint], "view">;
+
+  MIN_CRANK_INTERVAL: TypedContractMethod<[], [bigint], "view">;
+
+  SECONDS_PER_DAY: TypedContractMethod<[], [bigint], "view">;
+
+  canCrank: TypedContractMethod<
+    [user: AddressLike],
+    [[boolean, string]],
+    "view"
+  >;
+
   configureGad: TypedContractMethod<
+    [enabled: boolean, customThresholdBps: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+
+  core: TypedContractMethod<[], [string], "view">;
+
+  crank: TypedContractMethod<[user: AddressLike], [void], "nonpayable">;
+
+  gadConfigs: TypedContractMethod<
+    [arg0: AddressLike],
     [
-      startThresholdBps: BigNumberish,
-      stepBps: BigNumberish,
-      minInterval: BigNumberish,
-      enabled: boolean
+      [boolean, bigint, bigint, bigint, bigint] & {
+        enabled: boolean;
+        customThresholdBps: bigint;
+        lastCrank: bigint;
+        totalLiquidatedUsd6: bigint;
+        gadEvents: bigint;
+      }
+    ],
+    "view"
+  >;
+
+  getGadRateBps: TypedContractMethod<
+    [currentLtvBps: BigNumberish, maxLtvBps: BigNumberish],
+    [bigint],
+    "view"
+  >;
+
+  getGadStats: TypedContractMethod<
+    [user: AddressLike],
+    [
+      [boolean, bigint, bigint, bigint] & {
+        enabled: boolean;
+        totalLiquidatedUsd6: bigint;
+        gadEvents: bigint;
+        lastCrank: bigint;
+      }
+    ],
+    "view"
+  >;
+
+  lendingContract: TypedContractMethod<[], [string], "view">;
+
+  positions: TypedContractMethod<
+    [arg0: AddressLike],
+    [
+      [string, bigint, bigint] & {
+        collateralToken: string;
+        collateralAmount: bigint;
+        borrowAmount: bigint;
+      }
+    ],
+    "view"
+  >;
+
+  reputation: TypedContractMethod<[], [string], "view">;
+
+  syncPosition: TypedContractMethod<
+    [
+      user: AddressLike,
+      collateralToken: AddressLike,
+      collateralAmount: BigNumberish,
+      borrowAmount: BigNumberish
     ],
     [void],
     "nonpayable"
   >;
 
-  crank: TypedContractMethod<[], [void], "nonpayable">;
-
-  gadConfigs: TypedContractMethod<
-    [arg0: AddressLike],
-    [
-      [bigint, bigint, bigint, bigint, boolean] & {
-        startThresholdBps: bigint;
-        stepBps: bigint;
-        minInterval: bigint;
-        lastCrank: bigint;
-        enabled: boolean;
-      }
-    ],
-    "view"
-  >;
+  treasury: TypedContractMethod<[], [string], "view">;
 
   getFunction<T extends ContractMethod = ContractMethod>(
     key: string | FunctionFragment
   ): T;
 
   getFunction(
+    nameOrSignature: "BPS_DENOMINATOR"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "CRANKER_REWARD_BPS"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "MAX_GAD_RATE_BPS"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "MIN_CRANK_INTERVAL"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "SECONDS_PER_DAY"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "canCrank"
+  ): TypedContractMethod<[user: AddressLike], [[boolean, string]], "view">;
+  getFunction(
     nameOrSignature: "configureGad"
   ): TypedContractMethod<
-    [
-      startThresholdBps: BigNumberish,
-      stepBps: BigNumberish,
-      minInterval: BigNumberish,
-      enabled: boolean
-    ],
+    [enabled: boolean, customThresholdBps: BigNumberish],
     [void],
     "nonpayable"
   >;
   getFunction(
+    nameOrSignature: "core"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
     nameOrSignature: "crank"
-  ): TypedContractMethod<[], [void], "nonpayable">;
+  ): TypedContractMethod<[user: AddressLike], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "gadConfigs"
   ): TypedContractMethod<
     [arg0: AddressLike],
     [
-      [bigint, bigint, bigint, bigint, boolean] & {
-        startThresholdBps: bigint;
-        stepBps: bigint;
-        minInterval: bigint;
-        lastCrank: bigint;
+      [boolean, bigint, bigint, bigint, bigint] & {
         enabled: boolean;
+        customThresholdBps: bigint;
+        lastCrank: bigint;
+        totalLiquidatedUsd6: bigint;
+        gadEvents: bigint;
       }
     ],
     "view"
   >;
+  getFunction(
+    nameOrSignature: "getGadRateBps"
+  ): TypedContractMethod<
+    [currentLtvBps: BigNumberish, maxLtvBps: BigNumberish],
+    [bigint],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "getGadStats"
+  ): TypedContractMethod<
+    [user: AddressLike],
+    [
+      [boolean, bigint, bigint, bigint] & {
+        enabled: boolean;
+        totalLiquidatedUsd6: bigint;
+        gadEvents: bigint;
+        lastCrank: bigint;
+      }
+    ],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "lendingContract"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "positions"
+  ): TypedContractMethod<
+    [arg0: AddressLike],
+    [
+      [string, bigint, bigint] & {
+        collateralToken: string;
+        collateralAmount: bigint;
+        borrowAmount: bigint;
+      }
+    ],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "reputation"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "syncPosition"
+  ): TypedContractMethod<
+    [
+      user: AddressLike,
+      collateralToken: AddressLike,
+      collateralAmount: BigNumberish,
+      borrowAmount: BigNumberish
+    ],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "treasury"
+  ): TypedContractMethod<[], [string], "view">;
 
   getEvent(
     key: "GadConfigured"
@@ -204,15 +459,15 @@ export interface LegasiGAD extends BaseContract {
     GadConfiguredEvent.OutputObject
   >;
   getEvent(
-    key: "GadCranked"
+    key: "GadExecuted"
   ): TypedContractEvent<
-    GadCrankedEvent.InputTuple,
-    GadCrankedEvent.OutputTuple,
-    GadCrankedEvent.OutputObject
+    GadExecutedEvent.InputTuple,
+    GadExecutedEvent.OutputTuple,
+    GadExecutedEvent.OutputObject
   >;
 
   filters: {
-    "GadConfigured(address,uint16,uint16,uint256,bool)": TypedContractEvent<
+    "GadConfigured(address,bool,uint16)": TypedContractEvent<
       GadConfiguredEvent.InputTuple,
       GadConfiguredEvent.OutputTuple,
       GadConfiguredEvent.OutputObject
@@ -223,15 +478,15 @@ export interface LegasiGAD extends BaseContract {
       GadConfiguredEvent.OutputObject
     >;
 
-    "GadCranked(address,uint256)": TypedContractEvent<
-      GadCrankedEvent.InputTuple,
-      GadCrankedEvent.OutputTuple,
-      GadCrankedEvent.OutputObject
+    "GadExecuted(address,uint256,uint256,uint256,uint256,address,uint256)": TypedContractEvent<
+      GadExecutedEvent.InputTuple,
+      GadExecutedEvent.OutputTuple,
+      GadExecutedEvent.OutputObject
     >;
-    GadCranked: TypedContractEvent<
-      GadCrankedEvent.InputTuple,
-      GadCrankedEvent.OutputTuple,
-      GadCrankedEvent.OutputObject
+    GadExecuted: TypedContractEvent<
+      GadExecutedEvent.InputTuple,
+      GadExecutedEvent.OutputTuple,
+      GadExecutedEvent.OutputObject
     >;
   };
 }

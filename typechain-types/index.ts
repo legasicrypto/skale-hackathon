@@ -20,8 +20,16 @@ export type { IERC20Metadata } from "./@openzeppelin/contracts/token/ERC20/exten
 export { IERC20Metadata__factory } from "./factories/@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata__factory";
 export type { IERC20 } from "./@openzeppelin/contracts/token/ERC20/IERC20";
 export { IERC20__factory } from "./factories/@openzeppelin/contracts/token/ERC20/IERC20__factory";
+export type { ReentrancyGuard } from "./@openzeppelin/contracts/utils/ReentrancyGuard";
+export { ReentrancyGuard__factory } from "./factories/@openzeppelin/contracts/utils/ReentrancyGuard__factory";
 export type { LegasiCore } from "./contracts/LegasiCore";
 export { LegasiCore__factory } from "./factories/contracts/LegasiCore__factory";
+export type { FlashLoanArbitrage } from "./contracts/LegasiFlash.sol/FlashLoanArbitrage";
+export { FlashLoanArbitrage__factory } from "./factories/contracts/LegasiFlash.sol/FlashLoanArbitrage__factory";
+export type { IFlashLoanReceiver } from "./contracts/LegasiFlash.sol/IFlashLoanReceiver";
+export { IFlashLoanReceiver__factory } from "./factories/contracts/LegasiFlash.sol/IFlashLoanReceiver__factory";
+export type { LegasiFlash } from "./contracts/LegasiFlash.sol/LegasiFlash";
+export { LegasiFlash__factory } from "./factories/contracts/LegasiFlash.sol/LegasiFlash__factory";
 export type { LegasiGAD } from "./contracts/LegasiGAD";
 export { LegasiGAD__factory } from "./factories/contracts/LegasiGAD__factory";
 export type { LegasiLending } from "./contracts/LegasiLending";

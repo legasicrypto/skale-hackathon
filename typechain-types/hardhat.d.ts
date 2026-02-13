@@ -42,9 +42,25 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IERC20__factory>;
     getContractFactory(
+      name: "ReentrancyGuard",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ReentrancyGuard__factory>;
+    getContractFactory(
       name: "LegasiCore",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.LegasiCore__factory>;
+    getContractFactory(
+      name: "FlashLoanArbitrage",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.FlashLoanArbitrage__factory>;
+    getContractFactory(
+      name: "IFlashLoanReceiver",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IFlashLoanReceiver__factory>;
+    getContractFactory(
+      name: "LegasiFlash",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.LegasiFlash__factory>;
     getContractFactory(
       name: "LegasiGAD",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -110,10 +126,30 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.IERC20>;
     getContractAt(
+      name: "ReentrancyGuard",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ReentrancyGuard>;
+    getContractAt(
       name: "LegasiCore",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
     ): Promise<Contracts.LegasiCore>;
+    getContractAt(
+      name: "FlashLoanArbitrage",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.FlashLoanArbitrage>;
+    getContractAt(
+      name: "IFlashLoanReceiver",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IFlashLoanReceiver>;
+    getContractAt(
+      name: "LegasiFlash",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.LegasiFlash>;
     getContractAt(
       name: "LegasiGAD",
       address: string | ethers.Addressable,
@@ -179,9 +215,25 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IERC20>;
     deployContract(
+      name: "ReentrancyGuard",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.ReentrancyGuard>;
+    deployContract(
       name: "LegasiCore",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.LegasiCore>;
+    deployContract(
+      name: "FlashLoanArbitrage",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.FlashLoanArbitrage>;
+    deployContract(
+      name: "IFlashLoanReceiver",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.IFlashLoanReceiver>;
+    deployContract(
+      name: "LegasiFlash",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.LegasiFlash>;
     deployContract(
       name: "LegasiGAD",
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -247,10 +299,30 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IERC20>;
     deployContract(
+      name: "ReentrancyGuard",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.ReentrancyGuard>;
+    deployContract(
       name: "LegasiCore",
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.LegasiCore>;
+    deployContract(
+      name: "FlashLoanArbitrage",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.FlashLoanArbitrage>;
+    deployContract(
+      name: "IFlashLoanReceiver",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.IFlashLoanReceiver>;
+    deployContract(
+      name: "LegasiFlash",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.LegasiFlash>;
     deployContract(
       name: "LegasiGAD",
       args: any[],
