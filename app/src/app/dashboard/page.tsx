@@ -514,7 +514,6 @@ function Dashboard() {
                             showToast("Exceeds your borrow limit (LTV). Supply more collateral.", "error");
                             return;
                           }
-                          await ensurePosition();
                           return writeContractAsync({ address: lending, abi: lendingAbi, functionName: "borrow", args: [usdc, toUSDC(borrowAmount)] });
                         }, "Borrow")}
                           disabled={!borrowAmount}
@@ -560,7 +559,6 @@ function Dashboard() {
                             showToast("Insufficient USDC balance", "error");
                             return;
                           }
-                          await ensurePosition();
                           const approveHash = await writeContractAsync({ address: usdc, abi: erc20Abi, functionName: "approve", args: [lending, toUSDC(repayAmount)] });
                           if (publicClient) {
                             await publicClient.waitForTransactionReceipt({ hash: approveHash });
