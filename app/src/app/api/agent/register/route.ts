@@ -36,7 +36,7 @@ export async function GET() {
         endpoint: '/api/agent/register',
         contentType: 'application/json',
         required: {
-          walletAddress: 'string - Your Solana wallet address',
+          walletAddress: 'string - Your EVM wallet address (0x...)',
           agentName: 'string - Your agent identifier',
         },
         optional: {
@@ -45,7 +45,7 @@ export async function GET() {
           referralCode: 'string - Referral code from another user',
         },
         example: {
-          walletAddress: 'AvQhA3xn1tiw9pxVVDk6LChr9XcrJsTqf3kmGmvdcFas',
+          walletAddress: '0x1234...abcd',
           agentName: 'ArbitrageBot',
           agentDescription: 'Autonomous DeFi arbitrage agent',
           useCase: 'Flash credit for MEV opportunities',
@@ -65,7 +65,7 @@ export async function GET() {
       // Links
       links: {
         docs: 'https://docs.legasi.io/agents',
-        website: 'https://agentic.legasi.io',
+        website: 'https://evm.legasi.io',
         twitter: 'https://x.com/legasi_xyz',
       },
       
@@ -97,20 +97,20 @@ export async function POST(request: Request) {
         { 
           success: false, 
           error: 'walletAddress is required',
-          hint: 'Provide your Solana wallet address (base58 encoded)',
-          example: 'AvQhA3xn1tiw9pxVVDk6LChr9XcrJsTqf3kmGmvdcFas',
+          hint: 'Provide your EVM wallet address (0x...)',
+          example: '0x1234567890abcdef1234567890abcdef12345678',
         },
         { status: 400 }
       );
     }
 
-    // Basic wallet validation (Solana addresses are 32-44 chars base58)
-    if (walletAddress.length < 32 || walletAddress.length > 44) {
+    // Basic wallet validation (EVM address)
+    if (!/^0x[a-fA-F0-9]{40}$/.test(walletAddress)) {
       return NextResponse.json(
         { 
           success: false, 
           error: 'Invalid wallet address format',
-          hint: 'Solana addresses are 32-44 characters in base58',
+          hint: 'EVM addresses are 42 chars, hex prefixed with 0x',
         },
         { status: 400 }
       );

@@ -77,6 +77,14 @@ npm run dev
 
 See `docs/DEMO_FLOW.md`.
 
+## Agent flow (EVM)
+
+See `docs/AGENT_FLOW.md` for the full register → LP → collateral → borrow → repay → withdraw flow.
+
+## Agent skill (EVM)
+
+`skills/legasi-lending-evm/SKILL.md`
+
 ## Docs
 
 - USDC: `docs/USDC.md`

@@ -6,3 +6,6 @@
 4. Agent executes task
 5. Agent repays borrow
 6. Reputation updated (ERC-8004)
+
+## Full Agent Flow (EVM)
+See `docs/AGENT_FLOW.md` for the complete register → LP → collateral → borrow → repay → withdraw steps.
