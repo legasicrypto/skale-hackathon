@@ -301,10 +301,23 @@ function Dashboard() {
     return true;
   };
 
+  const ensurePosition = async () => {
+    try {
+      const hash = await writeContractAsync({ address: lending, abi: lendingAbi, functionName: "initializePosition" });
+      if (publicClient) await publicClient.waitForTransactionReceipt({ hash });
+    } catch (e) {
+      // ignore "exists" errors
+    }
+  };
+
   async function safeTx(fn: () => Promise<`0x${string}` | void>, label: string) {
     try {
       const hash = await fn();
-      if (hash && publicClient) {
+      if (!hash) {
+        showToast(`${label} not sent`, "error");
+        return;
+      }
+      if (publicClient) {
         await publicClient.waitForTransactionReceipt({ hash });
       }
       showToast(`${label} confirmed`, "success");
@@ -432,15 +445,16 @@ function Dashboard() {
                           <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6a7a88] text-sm font-medium">{depositAsset}</span>
                         </div>
                         <button onClick={() => safeTx(() => {
-                          if (!requireAddress(collateralToken, depositAsset)) return Promise.resolve();
-                          if (!requireAddress(lending, "Lending")) return Promise.resolve();
+                          if (!requireAddress(collateralToken, depositAsset)) return;
+                          if (!requireAddress(lending, "Lending")) return;
                           return writeContractAsync({ address: collateralToken, abi: erc20Abi, functionName: "approve", args: [lending, collateralAmountToUnits(depositAmount)] });
                         }, "Approve collateral")}
                           disabled={!depositAmount}
                           className="h-14 px-4 bg-[#0a2535] hover:bg-[#1a3545] text-[#FF4E00] font-medium rounded-xl transition-all">Approve</button>
-                        <button onClick={() => safeTx(() => {
-                          if (!requireAddress(lending, "Lending")) return Promise.resolve();
-                          if (!requireAddress(collateralToken, depositAsset)) return Promise.resolve();
+                        <button onClick={() => safeTx(async () => {
+                          if (!requireAddress(lending, "Lending")) return;
+                          if (!requireAddress(collateralToken, depositAsset)) return;
+                          await ensurePosition();
                           return writeContractAsync({ address: lending, abi: lendingAbi, functionName: "deposit", args: [collateralToken, collateralAmountToUnits(depositAmount)] });
                         }, "Supply")}
                           disabled={!depositAmount}
@@ -470,7 +484,11 @@ function Dashboard() {
                           <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6a7a88] text-sm font-medium">USDC.e</span>
                         </div>
                         <button onClick={() => setBorrowAmount(maxBorrow.toFixed(2))} className="h-14 px-4 bg-[#0a2535] hover:bg-[#1a3545] text-[#FF4E00] font-medium rounded-xl transition-all">MAX</button>
-                        <button onClick={() => safeTx(() => writeContractAsync({ address: lending, abi: lendingAbi, functionName: "borrow", args: [usdc, toUSDC(borrowAmount)] }), "Borrow")}
+                        <button onClick={() => safeTx(async () => {
+                          if (!requireAddress(lending, "Lending")) return;
+                          await ensurePosition();
+                          return writeContractAsync({ address: lending, abi: lendingAbi, functionName: "borrow", args: [usdc, toUSDC(borrowAmount)] });
+                        }, "Borrow")}
                           disabled={!borrowAmount}
                           className="h-14 px-8 bg-[#FF4E00] hover:bg-[#E64500] text-white font-semibold rounded-xl transition-all hover:scale-105 disabled:bg-[#0a2535] disabled:text-[#3a4a58] disabled:hover:scale-100">
                           Borrow
@@ -493,10 +511,17 @@ function Dashboard() {
                           <input type="number" placeholder="0.00" value={repayAmount} onChange={(e) => setRepayAmount(e.target.value)} className="w-full h-14 bg-[#001520] border border-[#0a2535] rounded-xl px-4 pr-20 text-white placeholder-[#3a4a58] focus:outline-none focus:border-[#4ade80] transition-all" />
                           <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6a7a88] text-sm font-medium">USDC.e</span>
                         </div>
-                        <button onClick={() => safeTx(() => writeContractAsync({ address: usdc, abi: erc20Abi, functionName: "approve", args: [lending, toUSDC(repayAmount)] }), "Approve repay")}
+                        <button onClick={() => safeTx(() => {
+                          if (!requireAddress(lending, "Lending") || !requireAddress(usdc, "USDC")) return;
+                          return writeContractAsync({ address: usdc, abi: erc20Abi, functionName: "approve", args: [lending, toUSDC(repayAmount)] });
+                        }, "Approve repay")}
                           disabled={!repayAmount}
                           className="h-14 px-4 bg-[#0a2535] hover:bg-[#1a3545] text-[#4ade80] font-medium rounded-xl transition-all">Approve</button>
-                        <button onClick={() => safeTx(() => writeContractAsync({ address: lending, abi: lendingAbi, functionName: "repay", args: [usdc, toUSDC(repayAmount), toUSDC(repayAmount)] }), "Repay")}
+                        <button onClick={() => safeTx(async () => {
+                          if (!requireAddress(lending, "Lending") || !requireAddress(usdc, "USDC")) return;
+                          await ensurePosition();
+                          return writeContractAsync({ address: lending, abi: lendingAbi, functionName: "repay", args: [usdc, toUSDC(repayAmount), toUSDC(repayAmount)] });
+                        }, "Repay")}
                           disabled={!repayAmount}
                           className="h-14 px-8 bg-[#4ade80] hover:bg-[#22c55e] text-black font-semibold rounded-xl transition-all hover:scale-105 disabled:bg-[#0a2535] disabled:text-[#3a4a58] disabled:hover:scale-100">Repay</button>
                       </div>
